@@ -540,7 +540,9 @@ function setHomoSt(n){
   if(S.metaAds.length) S.metaAds=S.metaAds.map(a=>applyH(a,false));
   if(S.googleAds.length) S.googleAds=S.googleAds.map(a=>applyH(a,true));
   rebuildFilters();renderGrid();
-  toast('Homologaci\u00f3n: '+n+' filas — '+S.homoKeys.length+' columnas','success');
+  const matched=[...S.metaAds,...S.googleAds].filter(a=>a._homoFields&&a._homoFields.length>0).length;
+  const total=S.metaAds.length+S.googleAds.length;
+  toast('Homologación: '+n+' filas — '+matched+'/'+total+' anuncios mapeados','success');
 }
 function loadXLSX(cb){
   if(typeof XLSX!=='undefined'){cb();return;}
@@ -688,34 +690,15 @@ function lookupMeta(ad){
   const adsetCol=Object.keys(S.homoRows[0]).find(k=>/ad.?set|conjunto/i.test(k))||'';
   const kc=norm(ad.campaign_name||'');
   const ka=norm(ad.adset_name||'');
-  // 1) Match exacto campaña + ad set (cuando ad set viene de la API)
+
+  // Match exacto: Campaign Name + Ad Set name
   if(adsetCol&&ka){
-    const exact=S.homoRows.find(r=>norm(getCampKey(r))===kc&&norm(r[adsetCol])===ka);
-    if(exact) return exact;
+    const m=S.homoRows.find(r=>norm(getCampKey(r))===kc&&norm(r[adsetCol])===ka);
+    if(m) return m;
   }
-  // 2) Fallback: campaña + ad set inferido del ad_name
-  // El ad_name tiene formato Imagen_X-programa_ciudad_nivel → el adset suele ser el programa
-  if(adsetCol){
-    const adName=norm(ad.ad_name||'');
-    const byAdName=S.homoRows.find(r=>{
-      if(norm(getCampKey(r))!==kc) return false;
-      const rv=norm(r[adsetCol]);
-      return rv&&adName.includes(rv.replace(/\s+/g,'-').toLowerCase());
-    });
-    if(byAdName) return byAdName;
-    // 3) Coincidencia parcial por palabras del adset dentro del ad_name
-    const byWords=S.homoRows.find(r=>{
-      if(norm(getCampKey(r))!==kc) return false;
-      const rv=norm(r[adsetCol]);
-      if(!rv||rv.length<3) return false;
-      const words=rv.split(' ').filter(w=>w.length>3);
-      return words.length>0&&words.every(w=>adName.includes(w));
-    });
-    if(byWords) return byWords;
-  }
-  // 4) Último fallback: solo campaña
-  return S.homoRows.find(r=>norm(getCampKey(r))===kc)||
-         S.homoRows.find(r=>{const rk=norm(getCampKey(r));return rk&&(kc.includes(rk)||rk.includes(kc));})||null;
+
+  // Fallback solo campaña (cuando adset_name no viene de la API)
+  return S.homoRows.find(r=>norm(getCampKey(r))===kc)||null;
 }
 function lookupGoogle(name){
   if(!S.homoRows.length) return null;
@@ -827,7 +810,8 @@ async function fetchMetaAds(){
     });
     st.textContent=S.metaAds.length+' anuncios';st.className='cfg-status st-ok';
     updatePills();
-    toast('Meta: '+S.metaAds.length+' anuncios cargados','success');
+    const withAdset=S.metaAds.filter(a=>a.adset_name).length;
+    toast('Meta: '+S.metaAds.length+' anuncios ('+withAdset+' con adset)','success');
     rebuildFilters();renderGrid();
   }catch(e){st.textContent='Error';st.className='cfg-status st-err';toast(e.message,'error');}
   finally{btn.disabled=false;btn.textContent='\u25b6 Conectar y cargar anuncios';}
