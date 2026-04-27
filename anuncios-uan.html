@@ -362,7 +362,8 @@ function init(){
       document.getElementById('homo-status').textContent=S.homoRows.length+' filas';
       document.getElementById('homo-status').className='cfg-status st-ok';
       const campCol=Object.keys(S.homoRows[0]).find(k=>/campa|campaign/i.test(k))||'';
-      S.homoKeys=Object.keys(S.homoRows[0]).filter(k=>k!==campCol&&k.trim()!=='');
+      const adsetCol=Object.keys(S.homoRows[0]).find(k=>/ad.?set|conjunto/i.test(k))||'';
+      S.homoKeys=Object.keys(S.homoRows[0]).filter(k=>k!==campCol&&k!==adsetCol&&k.trim()!=='');
     }
     rebuildFilters();
   }
@@ -532,7 +533,8 @@ function setHomoSt(n){
   // Detectar columnas dinamicas (todo excepto la columna Campaña)
   if(S.homoRows.length){
     const campCol=Object.keys(S.homoRows[0]).find(k=>/campa|campaign/i.test(k))||'';
-    S.homoKeys=Object.keys(S.homoRows[0]).filter(k=>k!==campCol&&k.trim()!=='');
+    const adsetCol=Object.keys(S.homoRows[0]).find(k=>/ad.?set|conjunto/i.test(k))||'';
+    S.homoKeys=Object.keys(S.homoRows[0]).filter(k=>k!==campCol&&k!==adsetCol&&k.trim()!=='');
   }
   // Re-apply homologation to already-loaded ads
   if(S.metaAds.length) S.metaAds=S.metaAds.map(a=>applyH(a,false));
@@ -683,16 +685,35 @@ function parseGoogle(html){
 /* ---- HOMOLOGATION ---- */
 function lookupMeta(ad){
   if(!S.homoRows.length) return null;
-  const campCol=Object.keys(S.homoRows[0]).find(k=>/campa|campaign/i.test(k))||'';
   const adsetCol=Object.keys(S.homoRows[0]).find(k=>/ad.?set|conjunto/i.test(k))||'';
-  const kc=norm(ad.campaign_name||ad);
+  const kc=norm(ad.campaign_name||'');
   const ka=norm(ad.adset_name||'');
-  // 1) Match exacto campaña + ad set
+  // 1) Match exacto campaña + ad set (cuando ad set viene de la API)
   if(adsetCol&&ka){
     const exact=S.homoRows.find(r=>norm(getCampKey(r))===kc&&norm(r[adsetCol])===ka);
     if(exact) return exact;
   }
-  // 2) Fallback: solo campaña (comportamiento anterior)
+  // 2) Fallback: campaña + ad set inferido del ad_name
+  // El ad_name tiene formato Imagen_X-programa_ciudad_nivel → el adset suele ser el programa
+  if(adsetCol){
+    const adName=norm(ad.ad_name||'');
+    const byAdName=S.homoRows.find(r=>{
+      if(norm(getCampKey(r))!==kc) return false;
+      const rv=norm(r[adsetCol]);
+      return rv&&adName.includes(rv.replace(/\s+/g,'-').toLowerCase());
+    });
+    if(byAdName) return byAdName;
+    // 3) Coincidencia parcial por palabras del adset dentro del ad_name
+    const byWords=S.homoRows.find(r=>{
+      if(norm(getCampKey(r))!==kc) return false;
+      const rv=norm(r[adsetCol]);
+      if(!rv||rv.length<3) return false;
+      const words=rv.split(' ').filter(w=>w.length>3);
+      return words.length>0&&words.every(w=>adName.includes(w));
+    });
+    if(byWords) return byWords;
+  }
+  // 4) Último fallback: solo campaña
   return S.homoRows.find(r=>norm(getCampKey(r))===kc)||
          S.homoRows.find(r=>{const rk=norm(getCampKey(r));return rk&&(kc.includes(rk)||rk.includes(kc));})||null;
 }
