@@ -779,11 +779,8 @@ async function fetchMetaAds(){
     const camps=await fetchPages(BASE+'/'+ac+'/campaigns?'+cp);
     if(!camps.length) throw new Error('Sin campa\u00f1as activas en esta cuenta');
     const cm=new Map(camps.map(c=>[c.id,c.name]));
-    const asp=new URLSearchParams({fields:'id,name',filtering:JSON.stringify([{field:'effective_status',operator:'IN',value:['ACTIVE']}]),limit:'500',access_token:tk});
-    const adsets=await fetchPages(BASE+'/'+ac+'/adsets?'+asp);
-    const am=new Map(adsets.map(s=>[s.id,s.name]));
-    // Paso 1: traer IDs y nombres de anuncios (ligero)
-    const apBase=new URLSearchParams({fields:'id,name,campaign_id,adset_id,preview_shareable_link',filtering:JSON.stringify([{field:'effective_status',operator:'IN',value:['ACTIVE']}]),limit:'200',access_token:tk});
+    // Paso 1: traer IDs, nombres y adset de anuncios directamente
+    const apBase=new URLSearchParams({fields:'id,name,campaign_id,adset_id,adset{name},preview_shareable_link',filtering:JSON.stringify([{field:'effective_status',operator:'IN',value:['ACTIVE']}]),limit:'200',access_token:tk});
     const raw=await fetchPages(BASE+'/'+ac+'/ads?'+apBase);
     // Paso 2: traer creativos en lotes de 50 para evitar payload too large
     const flds='id,title,body,thumbnail_url,asset_feed_spec{bodies{text},titles{text},descriptions{text},link_urls{website_url},videos{thumbnail_url},images{url}},object_story_spec{link_data{link,caption,description,message},video_data{call_to_action{value{link}}}}';
@@ -798,7 +795,7 @@ async function fetchMetaAds(){
     }
     S.metaAds=raw.map(ad=>{
       const c=creativeMap.get(ad.id)||{},fd=c.asset_feed_spec||{},ld=c.object_story_spec?.link_data||{},vd=c.object_story_spec?.video_data||{};
-      return applyH({medium:'Meta',campaign_name:cm.get(ad.campaign_id)||ad.campaign_id,adset_name:am.get(ad.adset_id)||'',ad_name:ad.name||'',
+      return applyH({medium:'Meta',campaign_name:cm.get(ad.campaign_id)||ad.campaign_id,adset_name:ad.adset?.name||'',ad_name:ad.name||'',
         headline:fd.titles?.[0]?.text||c.title||ld.caption||'',
         body_text:fd.bodies?.[0]?.text||c.body||ld.message||'',
         description:fd.descriptions?.[0]?.text||ld.description||'',
