@@ -160,6 +160,36 @@ td.city-name{font-weight:600}
 @keyframes spin{to{transform:rotate(360deg)}}
 .pdf-msg{color:var(--white);font-size:13px;font-weight:600}
 
+
+/* ── EDIT MODE ── */
+.sb-edit-btn{margin:10px 14px 0;padding:10px;background:transparent;border:1px solid #333;border-radius:var(--r-md);font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;color:var(--g400);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:.2s}
+.sb-edit-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+.sb-edit-btn.active{border-color:var(--yellow);color:var(--yellow);background:rgba(255,192,0,.08)}
+.sb-edit-btn .lock-icon{font-size:13px}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--white);border-radius:var(--r-xl);padding:36px;width:340px;box-shadow:0 24px 64px rgba(0,0,0,.2)}
+.modal h3{font-size:16px;font-weight:800;margin-bottom:6px}
+.modal p{font-size:12px;color:var(--g400);margin-bottom:20px;line-height:1.5}
+.modal input{width:100%;padding:11px 14px;border:1.5px solid var(--g200);border-radius:var(--r-sm);font-family:'Poppins',sans-serif;font-size:13px;outline:none;margin-bottom:8px}
+.modal input:focus{border-color:var(--yellow)}
+.modal-error{font-size:11px;color:var(--red);height:16px;margin-bottom:12px}
+.modal-btns{display:flex;gap:10px}
+.modal-btn{flex:1;padding:11px;border-radius:var(--r-sm);font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;border:none}
+.modal-btn.primary{background:var(--yellow);color:var(--black)}
+.modal-btn.primary:hover{background:#e6ac00}
+.modal-btn.secondary{background:var(--g100);color:var(--g600)}
+
+/* Editable comments */
+.edit-mode .editable-comment{cursor:text;position:relative;border-radius:6px;transition:.2s}
+.edit-mode .editable-comment:hover{background:rgba(255,192,0,.08);outline:1.5px dashed rgba(255,192,0,.5)}
+.edit-mode .editable-comment:focus{background:rgba(255,192,0,.06);outline:2px solid var(--yellow);padding:4px 6px}
+.edit-badge{display:none;position:fixed;bottom:24px;right:24px;background:var(--yellow);color:var(--black);font-size:11px;font-weight:700;padding:10px 18px;border-radius:var(--r-md);box-shadow:0 4px 16px rgba(255,192,0,.4);z-index:300;align-items:center;gap:8px}
+.edit-badge.show{display:flex}
+.edit-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--black);animation:pulse 1.5s infinite}
+
 /* ── PRINT ── */
 @media print{
   .sidebar,.topbar,.sb-pdf-btn,#pdf-overlay{display:none!important}
@@ -217,7 +247,31 @@ td.city-name{font-weight:600}
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 1v8M3 6l3.5 3.5L10 6M1 11h11"/></svg>
     Descargar Reporte PDF
   </button>
+  <button class="sb-edit-btn" id="edit-toggle-btn" onclick="toggleEditMode()">
+    <span class="lock-icon" id="edit-lock-icon">🔒</span>
+    <span id="edit-btn-label">Modo Edición</span>
+  </button>
 </aside>
+
+<!-- MODAL CONTRASEÑA -->
+<div class="modal-overlay" id="pwd-modal">
+  <div class="modal">
+    <h3>Modo Edición</h3>
+    <p>Ingresa la contraseña para editar los comentarios del reporte.</p>
+    <input type="password" id="pwd-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div class="modal-error" id="pwd-error"></div>
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="closePwdModal()">Cancelar</button>
+      <button class="modal-btn primary" onclick="checkPwd()">Ingresar</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT ACTIVE BADGE -->
+<div class="edit-badge" id="edit-badge">
+  <span class="edit-badge-dot"></span>
+  Modo edición activo — los cambios se guardan automáticamente
+</div>
 
 <!-- MAIN -->
 <main class="main">
@@ -310,7 +364,7 @@ td.city-name{font-weight:600}
       </div>
       <div class="insight">
         <div class="insight-label">Análisis</div>
-        <p>Bogotá concentra el 19.4% de la inversión ($7.9M) con el CPL más eficiente entre las ciudades de mayor inversión ($10.690), seguida por Sede Virtual ($4.4M, CPL $11.262). Duitama y Armenia muestran CPLs críticos por encima de los $30.000, señalando oportunidades de optimización inmediata.</p>
+        <p class="editable-comment" data-key="comment-inversion" contenteditable="false" oninput="saveComment(this)">Bogotá concentra el 19.4% de la inversión ($7.9M) con el CPL más eficiente entre las ciudades de mayor inversión ($10.690), seguida por Sede Virtual ($4.4M, CPL $11.262). Duitama y Armenia muestran CPLs críticos por encima de los $30.000, señalando oportunidades de optimización inmediata.</p>
       </div>
       <div class="table-search">
         <input class="search-box" type="text" placeholder="Buscar ciudad..." oninput="filterTable('city-tbody', 0, this.value)">
@@ -362,7 +416,7 @@ td.city-name{font-weight:600}
       </div>
       <div class="insight">
         <div class="insight-label">Análisis</div>
-        <p>Duitama lidera el CPL más crítico ($57.015), impulsado por Ingeniería Ambiental donde se obtuvieron apenas 3 leads con $425K invertidos. Roldanillo ($56.215) y Puerto Colombia ($37.929) siguen con eficiencias muy bajas, todas concentradas en Solo Facebook. Bogotá ($10.690) y Sede Virtual ($11.262) registran los CPLs más eficientes del período.</p>
+        <p class="editable-comment" data-key="comment-cpl" contenteditable="false" oninput="saveComment(this)">Duitama lidera el CPL más crítico ($57.015), impulsado por Ingeniería Ambiental donde se obtuvieron apenas 3 leads con $425K invertidos. Roldanillo ($56.215) y Puerto Colombia ($37.929) siguen con eficiencias muy bajas, todas concentradas en Solo Facebook. Bogotá ($10.690) y Sede Virtual ($11.262) registran los CPLs más eficientes del período.</p>
       </div>
       <div class="bar-chart" id="cpl-chart"></div>
     </div>
@@ -519,10 +573,14 @@ function renderCritical(){
   // Action cards
   const grid = document.getElementById('action-cards');
   grid.innerHTML = '';
-  actions.forEach(a=>{
+  actions.forEach((a,i)=>{
+    const key = 'action-'+i;
+    const saved = localStorage.getItem('uan-report-'+key);
+    const txt = saved || a.text;
     const d = document.createElement('div');
     d.className = 'action-card';
-    d.innerHTML = '<div class="action-city">'+a.city+'</div><div class="action-text">'+a.text+'</div>';
+    d.innerHTML = '<div class="action-city">'+a.city+'</div>'
+      +'<div class="action-text editable-comment" data-key="'+key+'" contenteditable="false" oninput="saveComment(this)">'+txt+'</div>';
     grid.appendChild(d);
   });
 }
@@ -741,7 +799,84 @@ async function exportPDF(){
   overlay.classList.remove('active');
 }
 
+
+// ══ EDIT MODE ═════════════════════════════════════════════════════
+const EDIT_PWD   = 'maicoladcom';
+const STORAGE_PFX = 'uan-report-';
+let editActive = false;
+
+// Load saved comments on init
+function loadSavedComments(){
+  document.querySelectorAll('.editable-comment').forEach(el=>{
+    const saved = localStorage.getItem(STORAGE_PFX + el.dataset.key);
+    if(saved) el.textContent = saved;
+  });
+}
+
+function saveComment(el){
+  localStorage.setItem(STORAGE_PFX + el.dataset.key, el.textContent);
+}
+
+function toggleEditMode(){
+  if(editActive){
+    deactivateEditMode();
+  } else {
+    document.getElementById('pwd-modal').classList.add('active');
+    setTimeout(()=>document.getElementById('pwd-input').focus(), 100);
+  }
+}
+
+function checkPwd(){
+  const val = document.getElementById('pwd-input').value;
+  const err = document.getElementById('pwd-error');
+  if(val === EDIT_PWD){
+    closePwdModal();
+    activateEditMode();
+  } else {
+    err.textContent = 'Contraseña incorrecta. Intenta de nuevo.';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+    setTimeout(()=>{ err.textContent=''; }, 3000);
+  }
+}
+
+function closePwdModal(){
+  document.getElementById('pwd-modal').classList.remove('active');
+  document.getElementById('pwd-input').value = '';
+  document.getElementById('pwd-error').textContent = '';
+}
+
+function activateEditMode(){
+  editActive = true;
+  document.querySelector('.content').classList.add('edit-mode');
+  document.querySelectorAll('.editable-comment').forEach(el=>{
+    el.contentEditable = 'true';
+  });
+  document.getElementById('edit-lock-icon').textContent = '✏️';
+  document.getElementById('edit-btn-label').textContent = 'Salir de Edición';
+  document.getElementById('edit-toggle-btn').classList.add('active');
+  document.getElementById('edit-badge').classList.add('show');
+}
+
+function deactivateEditMode(){
+  editActive = false;
+  document.querySelector('.content').classList.remove('edit-mode');
+  document.querySelectorAll('.editable-comment').forEach(el=>{
+    el.contentEditable = 'false';
+  });
+  document.getElementById('edit-lock-icon').textContent = '🔒';
+  document.getElementById('edit-btn-label').textContent = 'Modo Edición';
+  document.getElementById('edit-toggle-btn').classList.remove('active');
+  document.getElementById('edit-badge').classList.remove('show');
+}
+
+// Close modal on overlay click
+document.getElementById('pwd-modal').addEventListener('click', function(e){
+  if(e.target === this) closePwdModal();
+});
+
 // ══ INIT ══════════════════════════════════════════════════════════
+loadSavedComments();
 renderCityTable(cityData);
 renderFacTable(facData);
 renderCritical();
