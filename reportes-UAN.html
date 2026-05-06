@@ -257,12 +257,28 @@ td.city-name{font-weight:600}
 <div class="modal-overlay" id="pwd-modal">
   <div class="modal">
     <h3>Modo Edición</h3>
-    <p>Ingresa la contraseña para editar los comentarios del reporte.</p>
-    <input type="password" id="pwd-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter')checkPwd()">
+    <p id="modal-desc">Ingresa la contraseña para activar la edición de comentarios.</p>
+    <input type="password" id="pwd-input" placeholder="Contraseña de edición" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div id="token-wrap" style="display:none;margin-top:8px">
+      <input type="password" id="token-input" placeholder="GitHub Token (solo esta vez)">
+      <div style="font-size:10px;color:var(--g400);margin-top:5px;line-height:1.5">Se guarda en este navegador — no tendrás que ingresarlo de nuevo.</div>
+    </div>
     <div class="modal-error" id="pwd-error"></div>
     <div class="modal-btns">
       <button class="modal-btn secondary" onclick="closePwdModal()">Cancelar</button>
       <button class="modal-btn primary" onclick="checkPwd()">Ingresar</button>
+    </div>
+  </div>
+</div>
+
+<!-- PUBLISH CONFIRM MODAL -->
+<div class="modal-overlay" id="publish-modal">
+  <div class="modal">
+    <h3>Publicar cambios</h3>
+    <p>¿Quieres guardar los comentarios editados en GitHub? Los cambios quedarán visibles para cualquier persona que abra el reporte.</p>
+    <div class="modal-btns" style="margin-top:8px">
+      <button class="modal-btn secondary" onclick="discardAndExit()">Solo salir</button>
+      <button class="modal-btn primary" onclick="confirmPublish()">Publicar en GitHub</button>
     </div>
   </div>
 </div>
@@ -800,12 +816,17 @@ async function exportPDF(){
 }
 
 
-// ══ EDIT MODE ═════════════════════════════════════════════════════
-const EDIT_PWD   = 'maicoladcom';
+// ══ EDIT MODE + GITHUB SYNC ═══════════════════════════════════════
+const EDIT_PWD    = 'maicoladcom';
 const STORAGE_PFX = 'uan-report-';
-let editActive = false;
+const GH_USER     = 'adcom-forecast';
+const GH_REPO     = 'uan';
+const GH_FILE     = 'reportes-UAN.html';
+const GH_BRANCH   = 'main';
+let editActive    = false;
+let ghToken       = localStorage.getItem('uan-gh-token') || '';
 
-// Load saved comments on init
+// ── Load saved comments from localStorage on init ─────────────────
 function loadSavedComments(){
   document.querySelectorAll('.editable-comment').forEach(el=>{
     const saved = localStorage.getItem(STORAGE_PFX + el.dataset.key);
@@ -813,31 +834,58 @@ function loadSavedComments(){
   });
 }
 
+// ── Save to localStorage immediately on every keystroke ───────────
 function saveComment(el){
   localStorage.setItem(STORAGE_PFX + el.dataset.key, el.textContent);
 }
 
+// ── Toggle edit mode ──────────────────────────────────────────────
 function toggleEditMode(){
   if(editActive){
-    deactivateEditMode();
+    showPublishConfirm();
   } else {
+    // Reset modal state
+    const tokenWrap = document.getElementById('token-wrap');
+    if(tokenWrap) tokenWrap.style.display = ghToken ? 'none' : 'none';
+    document.getElementById('modal-desc').textContent = 'Ingresa la contraseña para activar la edición de comentarios.';
     document.getElementById('pwd-modal').classList.add('active');
     setTimeout(()=>document.getElementById('pwd-input').focus(), 100);
   }
 }
 
+// ── Password check ────────────────────────────────────────────────
 function checkPwd(){
   const val = document.getElementById('pwd-input').value;
   const err = document.getElementById('pwd-error');
-  if(val === EDIT_PWD){
-    closePwdModal();
-    activateEditMode();
-  } else {
+  if(val !== EDIT_PWD){
     err.textContent = 'Contraseña incorrecta. Intenta de nuevo.';
     document.getElementById('pwd-input').value = '';
     document.getElementById('pwd-input').focus();
     setTimeout(()=>{ err.textContent=''; }, 3000);
+    return;
   }
+  // If no token saved yet, require it
+  if(!ghToken){
+    const tokenWrap = document.getElementById('token-wrap');
+    const tokenInput = document.getElementById('token-input');
+    if(tokenWrap.style.display === 'none'){
+      // Show token field
+      tokenWrap.style.display = 'block';
+      document.getElementById('modal-desc').textContent = 'Contraseña correcta. Ahora ingresa tu GitHub Token para poder publicar.';
+      tokenInput.focus();
+      return;
+    }
+    const tokenVal = tokenInput.value.trim();
+    if(!tokenVal){
+      err.textContent = 'Ingresa el GitHub Token para continuar.';
+      setTimeout(()=>{ err.textContent=''; }, 3000);
+      return;
+    }
+    ghToken = tokenVal;
+    localStorage.setItem('uan-gh-token', ghToken);
+  }
+  closePwdModal();
+  activateEditMode();
 }
 
 function closePwdModal(){
@@ -846,6 +894,7 @@ function closePwdModal(){
   document.getElementById('pwd-error').textContent = '';
 }
 
+// ── Activate / Deactivate ─────────────────────────────────────────
 function activateEditMode(){
   editActive = true;
   document.querySelector('.content').classList.add('edit-mode');
@@ -853,7 +902,7 @@ function activateEditMode(){
     el.contentEditable = 'true';
   });
   document.getElementById('edit-lock-icon').textContent = '✏️';
-  document.getElementById('edit-btn-label').textContent = 'Salir de Edición';
+  document.getElementById('edit-btn-label').textContent = 'Publicar cambios';
   document.getElementById('edit-toggle-btn').classList.add('active');
   document.getElementById('edit-badge').classList.add('show');
 }
@@ -870,9 +919,97 @@ function deactivateEditMode(){
   document.getElementById('edit-badge').classList.remove('show');
 }
 
-// Close modal on overlay click
+// ── Publish confirm modal ─────────────────────────────────────────
+function showPublishConfirm(){
+  document.getElementById('publish-modal').classList.add('active');
+}
+function closePublishModal(){
+  document.getElementById('publish-modal').classList.remove('active');
+}
+async function confirmPublish(){
+  closePublishModal();
+  await pushToGitHub();
+  deactivateEditMode();
+}
+function discardAndExit(){
+  closePublishModal();
+  // Restore from localStorage (already saved per keystroke)
+  deactivateEditMode();
+}
+
+// ── Push updated HTML to GitHub ───────────────────────────────────
+async function pushToGitHub(){
+  const badge = document.getElementById('edit-badge');
+  badge.innerHTML = '<span class="edit-badge-dot"></span> Publicando en GitHub...';
+
+  try {
+    // 1. Inject current comment values into the HTML source
+    let updatedHTML = document.documentElement.outerHTML;
+
+    // Replace each editable comment's default text with the current edited text
+    document.querySelectorAll('.editable-comment').forEach(el=>{
+      const key = el.dataset.key;
+      const currentText = el.textContent.trim();
+      // Match the paragraph by data-key and replace its content
+      const regex = new RegExp(
+        '(<[^>]*data-key="' + key + '"[^>]*>)[^<]*(</)',
+        'g'
+      );
+      updatedHTML = updatedHTML.replace(regex, '$1' + currentText + '$2');
+    });
+
+    // 2. Get current file SHA (required by GitHub API to update)
+    const shaRes = await fetch(
+      'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + GH_FILE + '?ref=' + GH_BRANCH,
+      { headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' } }
+    );
+    if(!shaRes.ok) throw new Error('No se pudo obtener el archivo: ' + shaRes.status);
+    const shaData = await shaRes.json();
+    const sha = shaData.sha;
+
+    // 3. Encode updated HTML to base64
+    const encoded = btoa(unescape(encodeURIComponent(updatedHTML)));
+
+    // 4. Commit via GitHub API
+    const commitRes = await fetch(
+      'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + GH_FILE,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'token ' + ghToken,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'Actualizar comentarios del reporte UAN',
+          content: encoded,
+          sha: sha,
+          branch: GH_BRANCH
+        })
+      }
+    );
+    if(!commitRes.ok){
+      const errData = await commitRes.json();
+      throw new Error(errData.message || commitRes.status);
+    }
+
+    badge.innerHTML = '✓ Publicado en GitHub — cambios visibles para todos';
+    setTimeout(()=>{ badge.classList.remove('show'); }, 4000);
+
+  } catch(err){
+    console.error(err);
+    badge.innerHTML = '✗ Error al publicar: ' + err.message;
+    badge.style.background = 'var(--red)';
+    setTimeout(()=>{ badge.classList.remove('show'); badge.style.background=''; }, 5000);
+  }
+}
+
+// ── Close modals on overlay click ────────────────────────────────
 document.getElementById('pwd-modal').addEventListener('click', function(e){
   if(e.target === this) closePwdModal();
+});
+document.getElementById('publish-modal').addEventListener('click', function(e){
+  if(e.target === this) closePublishModal();
 });
 
 // ══ INIT ══════════════════════════════════════════════════════════
