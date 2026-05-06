@@ -121,8 +121,9 @@ tbody tr:hover{background:#FAFAFA}
 td{padding:10px 13px;color:var(--black)}
 td.center{text-align:center}
 td.city-name{font-weight:600}
-.inv-bar-wrap{display:flex;align-items:center;gap:7px}
-.inv-bar{height:5px;border-radius:3px;background:var(--yellow);min-width:2px;flex-shrink:0}
+.inv-bar-wrap{display:flex;align-items:center;gap:8px}
+.inv-bar-track{width:60px;flex-shrink:0;background:var(--g100);border-radius:3px;height:5px}
+.inv-bar{height:5px;border-radius:3px;background:var(--yellow);min-width:2px}
 .inv-bar-wrap span{font-size:10px;font-weight:600;white-space:nowrap}
 .plat-wrap{display:flex;gap:4px;justify-content:center}
 .fb-dot{font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;background:#e8f0fe;color:var(--fb)}
@@ -456,7 +457,7 @@ function renderCityTable(data){
     tr.dataset.cpl = c.cpl; tr.dataset.cumpl = c.cumpl;
     tr.innerHTML =
       '<td class="city-name">'+c.ciudad+'</td>'+
-      '<td><div class="inv-bar-wrap"><div class="inv-bar" style="width:'+barW.toFixed(1)+'%"></div><span>'+fmtCOP(c.inv)+'</span></div></td>'+
+      '<td><div class="inv-bar-wrap"><div class="inv-bar-track"><div class="inv-bar" style="width:'+barW.toFixed(1)+'%"></div></div><span>'+fmtCOP(c.inv)+'</span></div></td>'+
       '<td class="center">'+fmtPCT(c.pct)+'</td>'+
       '<td><div class="plat-wrap"><span class="fb-dot">FB '+fbPct.toFixed(0)+'%</span><span class="gg-dot">GG '+ggPct.toFixed(0)+'%</span></div></td>'+
       '<td class="center">'+fmtNUM(c.leads)+'</td>'+
