@@ -826,12 +826,28 @@ const GH_BRANCH   = 'main';
 let editActive    = false;
 let ghToken       = localStorage.getItem('uan-gh-token') || '';
 
-// ── Load saved comments from localStorage on init ─────────────────
+// ── Load saved comments ───────────────────────────────────────────
+// localStorage is ONLY used as a draft while editing.
+// After publishing, the HTML itself is the source of truth and
+// localStorage is cleared so new visitors see the published version.
 function loadSavedComments(){
+  // If there's a "published" flag, clear any stale drafts and skip
+  if(localStorage.getItem(STORAGE_PFX + 'published') === 'true'){
+    clearDrafts();
+    return;
+  }
+  // Otherwise load drafts (only relevant on the editor's browser)
   document.querySelectorAll('.editable-comment').forEach(el=>{
     const saved = localStorage.getItem(STORAGE_PFX + el.dataset.key);
     if(saved) el.textContent = saved;
   });
+}
+
+function clearDrafts(){
+  document.querySelectorAll('.editable-comment').forEach(el=>{
+    localStorage.removeItem(STORAGE_PFX + el.dataset.key);
+  });
+  localStorage.removeItem(STORAGE_PFX + 'published');
 }
 
 // ── Save to localStorage immediately on every keystroke ───────────
@@ -993,8 +1009,11 @@ async function pushToGitHub(){
       throw new Error(errData.message || commitRes.status);
     }
 
-    badge.innerHTML = '✓ Publicado en GitHub — cambios visibles para todos';
-    setTimeout(()=>{ badge.classList.remove('show'); }, 4000);
+    // Mark as published — clears localStorage drafts on next load
+    localStorage.setItem(STORAGE_PFX + 'published', 'true');
+    clearDrafts();
+    badge.innerHTML = '✓ Publicado en GitHub — visible en ~2 min al recargar';
+    setTimeout(()=>{ badge.classList.remove('show'); }, 5000);
 
   } catch(err){
     console.error(err);
