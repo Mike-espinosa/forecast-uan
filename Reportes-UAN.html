@@ -679,48 +679,60 @@ async function exportPDF(){
   const overlay = document.getElementById('pdf-overlay');
   overlay.classList.add('active');
   try {
+    // Make all sections visible before capture
+    document.querySelectorAll('.report-section').forEach(s=>s.classList.add('visible'));
+    document.querySelectorAll('.bc-fill').forEach(b=>{ b.style.width = b.dataset.w+'%'; });
+
+    // Build an off-screen wrapper with only the report content — no sidebar, no topbar
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position:fixed;top:0;left:-9999px;width:900px;background:#F8F8F8;padding:40px 48px;font-family:Poppins,sans-serif;box-sizing:border-box;';
+    const sections = ['ma-resumen','ma-inversion','ma-cumplimiento','ma-cpl','ma-facultades','ma-casos'];
+    const hero = document.querySelector('.hero');
+    [hero, ...sections.map(id=>document.getElementById(id))].forEach(el=>{
+      if(!el) return;
+      const clone = el.cloneNode(true);
+      clone.style.marginBottom = '28px';
+      clone.style.opacity = '1';
+      clone.style.transform = 'none';
+      // Apply actual bar widths to cloned bars
+      clone.querySelectorAll('.bc-fill').forEach((b,i)=>{
+        const orig = el.querySelectorAll('.bc-fill')[i];
+        if(orig) b.style.width = orig.style.width || (b.dataset.w+'%');
+      });
+      wrapper.appendChild(clone);
+    });
+    document.body.appendChild(wrapper);
+    // Let layout settle
+    await new Promise(r=>setTimeout(r, 350));
+
+    // Capture full wrapper as ONE tall canvas
+    const canvas = await html2canvas(wrapper, {
+      scale: 2, useCORS: true, backgroundColor: '#F8F8F8', logging: false,
+      width: wrapper.offsetWidth, height: wrapper.scrollHeight,
+    });
+    document.body.removeChild(wrapper);
+
+    // Slice canvas into tight A4 pages — zero white padding between content
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p','mm','a4');
-    const pW = 210; const pH = 297;
-    const sections = ['ma-resumen','ma-inversion','ma-cumplimiento','ma-cpl','ma-facultades','ma-casos'];
-    // Also include hero
-    const allEls = [document.querySelector('.hero'), ...sections.map(id=>document.getElementById(id))];
-    let firstPage = true;
-    for(const el of allEls){
-      if(!el) continue;
-      // Make section fully visible for capture
-      el.classList.add('visible');
-      const canvas = await html2canvas(el,{
-        scale:1.8, useCORS:true, backgroundColor:'#ffffff',
-        logging:false, allowTaint:true
-      });
-      const imgData = canvas.toDataURL('image/jpeg',0.90);
-      const imgW = pW - 20; // 10mm margin each side
-      const imgH = (canvas.height * imgW) / canvas.width;
+    const margin = 12;
+    const printW = 210 - margin * 2;
+    const printH = 297 - margin * 2;
+    const pxPerMm = canvas.width / printW;
+    const pageHeightPx = printH * pxPerMm;
+    let offsetPx = 0; let firstPage = true;
+    while(offsetPx < canvas.height){
+      const slicePx = Math.min(pageHeightPx, canvas.height - offsetPx);
+      const pageCanvas = document.createElement('canvas');
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = Math.ceil(slicePx);
+      const ctx = pageCanvas.getContext('2d');
+      ctx.fillStyle = '#F8F8F8';
+      ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+      ctx.drawImage(canvas, 0, offsetPx, canvas.width, slicePx, 0, 0, canvas.width, slicePx);
       if(!firstPage) pdf.addPage();
-      // If tall, it wraps across pages automatically
-      let yPos = 10;
-      let remainH = imgH;
-      const pageH = pH - 20;
-      if(remainH <= pageH){
-        pdf.addImage(imgData,'JPEG',10,yPos,imgW,imgH);
-      } else {
-        // Split across pages
-        let sourceY = 0;
-        while(remainH > 0){
-          const sliceH = Math.min(remainH, pageH);
-          const sliceCanvas = document.createElement('canvas');
-          sliceCanvas.width = canvas.width;
-          sliceCanvas.height = (sliceH/imgH)*canvas.height;
-          const ctx = sliceCanvas.getContext('2d');
-          ctx.drawImage(canvas, 0, sourceY*(canvas.height/imgH), canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
-          const sliceData = sliceCanvas.toDataURL('image/jpeg',0.90);
-          if(sourceY > 0) pdf.addPage();
-          pdf.addImage(sliceData,'JPEG',10,10,imgW,sliceH);
-          sourceY += sliceH;
-          remainH -= sliceH;
-        }
-      }
+      pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, printW, slicePx / pxPerMm);
+      offsetPx += slicePx;
       firstPage = false;
     }
     pdf.save('UAN_Reporte_Marzo-Abril_2026.pdf');
