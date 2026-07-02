@@ -292,8 +292,8 @@ function showError(msg) {
 // ─── BUILD CARDS ──────────────────────────────────────────────
 function buildCards() {
   const main = document.getElementById('main');
-  main.innerHTML = '';
   let count = 0;
+  const cardsHtml = [];
 
   DATA.forEach((p, i) => {
     if (fCampana !== 'all' && p.campana !== fCampana) return;
@@ -361,16 +361,17 @@ function buildCards() {
 
     const nlv = NL[p.nivel] || 'pre';
     const subInfo = [p.facultad, p.sede, p.modalidad].filter(x => x && x.trim() !== '').join(' · ');
-    main.innerHTML += `<div class="card" data-nivel="${p.nivel}">
+    cardsHtml.push(`<div class="card" data-nivel="${p.nivel}">
       <div class="ch ch-${nlv}">
         <span class="lvl-badge">${NB[p.nivel] || p.nivel}</span>
         <div><div class="prog-n">${esc(p.programa)}</div><div class="prog-m">${esc(subInfo)}</div></div>
       </div>
       ${secs}
       <div class="card-bot"></div>
-    </div>`;
+    </div>`);
   });
 
+  main.innerHTML = cardsHtml.join('');
   document.getElementById('counter').textContent = count + ' registros';
   updP();
 }
