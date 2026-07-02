@@ -56,6 +56,13 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);min-height:100vh;colo
 /* MAIN */
 .main{max-width:1200px;margin:0 auto;padding:22px 20px 80px;display:flex;flex-direction:column;gap:14px}
 
+/* PAGINACION */
+.pagn{display:flex;align-items:center;justify-content:center;gap:16px;padding:10px 0}
+.pgbtn{padding:8px 18px;border-radius:8px;border:1.5px solid var(--border);background:#fff;color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:all .12s}
+.pgbtn:hover:not(:disabled){border-color:var(--yellow);background:#FFFBE8}
+.pgbtn:disabled{opacity:.4;cursor:not-allowed}
+.pgtxt{font-size:11px;color:var(--t3);font-weight:600}
+
 /* LOADING */
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px;color:var(--t3)}
 .spinner{width:40px;height:40px;border:3px solid #eee;border-top-color:var(--yellow);border-radius:50%;animation:spin .8s linear infinite}
@@ -220,6 +227,8 @@ let DATA = [];
 let ST   = {};
 let TOTAL = 0;
 let fCampana = 'all', fNivel = 'all', fMedio = 'all', fEstado = 'all', clientName = '';
+let page = 1;
+const PAGE_SIZE = 20;
 
 // ─── MODAL ────────────────────────────────────────────────────
 function go() {
@@ -290,11 +299,8 @@ function showError(msg) {
 }
 
 // ─── BUILD CARDS ──────────────────────────────────────────────
-function buildCards() {
-  const main = document.getElementById('main');
-  let count = 0;
-  const cardsHtml = [];
-
+function getFilteredIndices() {
+  const out = [];
   DATA.forEach((p, i) => {
     if (fCampana !== 'all' && p.campana !== fCampana) return;
     if (fNivel !== 'all' && p.nivel !== fNivel) return;
@@ -302,78 +308,107 @@ function buildCards() {
       const any = MEDIOS.some(m => ST[i][m].e === fEstado);
       if (!any) return;
     }
-    count++;
+    out.push(i);
+  });
+  return out;
+}
 
-    let secs = '';
-    MEDIOS.forEach(m => {
-      if (fMedio !== 'all' && fMedio !== m) return;
-      if (fEstado !== 'all' && ST[i][m].e !== fEstado) return;
+function renderCard(i) {
+  const p = DATA[i];
+  let secs = '';
+  MEDIOS.forEach(m => {
+    if (fMedio !== 'all' && fMedio !== m) return;
+    if (fEstado !== 'all' && ST[i][m].e !== fEstado) return;
 
-      const s   = ST[i][m];
-      const bc  = s.e === 'aprobado' ? 'sbdg-a' : s.e === 'rechazado' ? 'sbdg-r' : 'sbdg-p';
-      const bl  = s.e === 'aprobado' ? '✓ Aprobado' : s.e === 'rechazado' ? '✕ Rechazado' : '● Pendiente';
-      const dis = s.sent ? 'disabled' : '';
-      const okd = s.sent ? 'flex' : 'none';
+    const s   = ST[i][m];
+    const bc  = s.e === 'aprobado' ? 'sbdg-a' : s.e === 'rechazado' ? 'sbdg-r' : 'sbdg-p';
+    const bl  = s.e === 'aprobado' ? '✓ Aprobado' : s.e === 'rechazado' ? '✕ Rechazado' : '● Pendiente';
+    const dis = s.sent ? 'disabled' : '';
+    const okd = s.sent ? 'flex' : 'none';
 
-      let cnt = '';
-      if (m === 'meta') {
-        const pc = p.meta_creative.length;
-        const ok = pc >= 60 && pc <= 100 ? '✅' : '⚠️';
-        cnt = `<div class="meta-g">
-          <div class="cbox bm"><span class="ctag">Primary Text — out-of-ad</span><p class="ctxt">${esc(p.meta_primary)}</p><div class="cchars">${p.meta_primary.length} chars</div></div>
-          <div class="cbox bm"><span class="ctag">Creative Ad — in-image (60-100 chars)</span><p class="ctxt">${esc(p.meta_creative)}</p><div class="cchars">${pc} chars ${ok}</div></div>
-        </div>`;
-      } else if (m === 'google') {
-        const chips = p.google_headlines.map(h => `<span class="hl">${esc(h)}</span>`).join('');
-        const descs = p.google_descs.map(d => `<div class="di">${esc(d)}</div>`).join('');
-        cnt = `<div class="goog-g">
-          <div class="cbox bg"><span class="ctag">Headlines RSA (${p.google_headlines.length})</span><div class="hl-wrap">${chips}</div></div>
-          <div class="cbox bg"><span class="ctag">Descriptions (${p.google_descs.length})</span><div class="dl">${descs}</div></div>
-        </div>`;
-      } else {
-        const tc  = p.tiktok.length;
-        const tok = tc <= 100 ? '✅' : '⚠️';
-        cnt = `<div class="cbox bt"><span class="ctag">Caption — máx 100 chars, sin emojis</span><p class="ctxt">${esc(p.tiktok)}</p><div class="cchars">${tc} chars ${tok}</div></div>`;
-      }
-
-      secs += `<div class="msec" id="s-${i}-${m}">
-        <div class="mhdr">
-          <div class="mhdr-l"><div class="dot dot-${m}"></div><span class="mnm">${ML[m]}</span></div>
-          <span class="sbdg ${bc}" id="bdg-${i}-${m}">${bl}</span>
-        </div>
-        ${cnt}
-        <div class="rpanel">
-          <div class="rptitle">Tu revisión</div>
-          <div class="rrow">
-            <div class="rbtns">
-              <button class="rbtn rbtn-a${s.e==='aprobado'?' on':''}" id="ba-${i}-${m}" onclick="setE(${i},'${m}','aprobado')">✓ Aprobar</button>
-              <button class="rbtn rbtn-r${s.e==='rechazado'?' on':''}" id="br-${i}-${m}" onclick="setE(${i},'${m}','rechazado')">✕ Rechazar</button>
-            </div>
-            <textarea class="cinput" id="ci-${i}-${m}" placeholder="Comentario o corrección (opcional)...">${s.c}</textarea>
-            <button class="sbtn" id="sb-${i}-${m}" onclick="send(${i},'${m}')" ${dis}>Enviar</button>
-            <span class="sok" id="ok-${i}-${m}" style="display:${okd}">✓ Enviado</span>
-          </div>
-        </div>
+    let cnt = '';
+    if (m === 'meta') {
+      const pc = p.meta_creative.length;
+      const ok = pc >= 60 && pc <= 100 ? '✅' : '⚠️';
+      cnt = `<div class="meta-g">
+        <div class="cbox bm"><span class="ctag">Primary Text — out-of-ad</span><p class="ctxt">${esc(p.meta_primary)}</p><div class="cchars">${p.meta_primary.length} chars</div></div>
+        <div class="cbox bm"><span class="ctag">Creative Ad — in-image (60-100 chars)</span><p class="ctxt">${esc(p.meta_creative)}</p><div class="cchars">${pc} chars ${ok}</div></div>
       </div>`;
-    });
+    } else if (m === 'google') {
+      const chips = p.google_headlines.map(h => `<span class="hl">${esc(h)}</span>`).join('');
+      const descs = p.google_descs.map(d => `<div class="di">${esc(d)}</div>`).join('');
+      cnt = `<div class="goog-g">
+        <div class="cbox bg"><span class="ctag">Headlines RSA (${p.google_headlines.length})</span><div class="hl-wrap">${chips}</div></div>
+        <div class="cbox bg"><span class="ctag">Descriptions (${p.google_descs.length})</span><div class="dl">${descs}</div></div>
+      </div>`;
+    } else {
+      const tc  = p.tiktok.length;
+      const tok = tc <= 100 ? '✅' : '⚠️';
+      cnt = `<div class="cbox bt"><span class="ctag">Caption — máx 100 chars, sin emojis</span><p class="ctxt">${esc(p.tiktok)}</p><div class="cchars">${tc} chars ${tok}</div></div>`;
+    }
 
-    if (!secs) return;
-
-    const nlv = NL[p.nivel] || 'pre';
-    const subInfo = [p.facultad, p.sede, p.modalidad].filter(x => x && x.trim() !== '').join(' · ');
-    cardsHtml.push(`<div class="card" data-nivel="${p.nivel}">
-      <div class="ch ch-${nlv}">
-        <span class="lvl-badge">${NB[p.nivel] || p.nivel}</span>
-        <div><div class="prog-n">${esc(p.programa)}</div><div class="prog-m">${esc(subInfo)}</div></div>
+    secs += `<div class="msec" id="s-${i}-${m}">
+      <div class="mhdr">
+        <div class="mhdr-l"><div class="dot dot-${m}"></div><span class="mnm">${ML[m]}</span></div>
+        <span class="sbdg ${bc}" id="bdg-${i}-${m}">${bl}</span>
       </div>
-      ${secs}
-      <div class="card-bot"></div>
-    </div>`);
+      ${cnt}
+      <div class="rpanel">
+        <div class="rptitle">Tu revisión</div>
+        <div class="rrow">
+          <div class="rbtns">
+            <button class="rbtn rbtn-a${s.e==='aprobado'?' on':''}" id="ba-${i}-${m}" onclick="setE(${i},'${m}','aprobado')">✓ Aprobar</button>
+            <button class="rbtn rbtn-r${s.e==='rechazado'?' on':''}" id="br-${i}-${m}" onclick="setE(${i},'${m}','rechazado')">✕ Rechazar</button>
+          </div>
+          <textarea class="cinput" id="ci-${i}-${m}" placeholder="Comentario o corrección (opcional)...">${s.c}</textarea>
+          <button class="sbtn" id="sb-${i}-${m}" onclick="send(${i},'${m}')" ${dis}>Enviar</button>
+          <span class="sok" id="ok-${i}-${m}" style="display:${okd}">✓ Enviado</span>
+        </div>
+      </div>
+    </div>`;
   });
 
-  main.innerHTML = cardsHtml.join('');
-  document.getElementById('counter').textContent = count + ' registros';
+  if (!secs) return '';
+
+  const nlv = NL[p.nivel] || 'pre';
+  const subInfo = [p.facultad, p.sede, p.modalidad].filter(x => x && x.trim() !== '').join(' · ');
+  return `<div class="card" data-nivel="${p.nivel}">
+    <div class="ch ch-${nlv}">
+      <span class="lvl-badge">${NB[p.nivel] || p.nivel}</span>
+      <div><div class="prog-n">${esc(p.programa)}</div><div class="prog-m">${esc(subInfo)}</div></div>
+    </div>
+    ${secs}
+    <div class="card-bot"></div>
+  </div>`;
+}
+
+function buildCards() {
+  const main = document.getElementById('main');
+  const filtered = getFilteredIndices();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  if (page > totalPages) page = totalPages;
+  if (page < 1) page = 1;
+
+  const start = (page - 1) * PAGE_SIZE;
+  const slice = filtered.slice(start, start + PAGE_SIZE);
+
+  const cardsHtml = slice.map(i => renderCard(i)).filter(h => h !== '');
+
+  const pagHtml = `<div class="pagn">
+    <button class="pgbtn" onclick="goPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>← Anterior</button>
+    <span class="pgtxt">Página ${page} de ${totalPages} · ${filtered.length} registros</span>
+    <button class="pgbtn" onclick="goPage(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>Siguiente →</button>
+  </div>`;
+
+  main.innerHTML = pagHtml + cardsHtml.join('') + pagHtml;
+  document.getElementById('counter').textContent = filtered.length + ' registros';
   updP();
+}
+
+function goPage(n) {
+  page = n;
+  buildCards();
+  document.getElementById('main').scrollIntoView({ behavior: 'instant', block: 'start' });
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────
@@ -451,9 +486,11 @@ function updP() {
 function setF(type, val, btn, cls) {
   btn.closest('.fgrp').querySelectorAll('.fb').forEach(b => b.className = 'fb');
   btn.classList.add(cls);
-  if (type === 'nivel')  fNivel  = val;
+  if (type === 'campana') fCampana = val;
+  else if (type === 'nivel')  fNivel  = val;
   else if (type === 'medio')  fMedio  = val;
   else fEstado = val;
+  page = 1;
   buildCards();
 }
 
