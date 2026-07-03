@@ -217,8 +217,9 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);min-height:100vh;colo
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────
 const SURL = 'https://script.google.com/macros/s/AKfycbzm3XdyFNtbgCrhxjhRqvPbOtS2yzc-IF2BwyCWBvUao7jhImP-J-qfRM1D3OYqbBvM/exec';
-const MEDIOS = ['meta','google','tiktok'];
-const ML = {meta:'Meta',google:'Google',tiktok:'TikTok'};
+const MEDIOS = ['meta_primary','meta_creative','google','tiktok'];
+const ML = {meta_primary:'Meta Primary',meta_creative:'Meta Creative',google:'Google',tiktok:'TikTok'};
+const MEDIO_GROUP = {meta_primary:'meta',meta_creative:'meta',google:'google',tiktok:'tiktok'};
 const NL = {'Pregrado':'pre','Posgrado':'pos','Tecnológico':'tec','Institucional':'ins'};
 const NB = {'Pregrado':'PREGRADO','Posgrado':'POSGRADO','Tecnológico':'TECNOLÓGICO','Institucional':'INSTITUCIONAL'};
 
@@ -273,7 +274,7 @@ async function loadData() {
       tiktok: row['TIKTOK \u2014 Caption (max 100 chars, sin emojis)'] || row['TIKTOK — Caption (max 100 chars, sin emojis)'] || ''
     }));
 
-    TOTAL = DATA.length * 3;
+    TOTAL = DATA.length * 4;
 
     // init state
     DATA.forEach((_, i) => {
@@ -317,7 +318,8 @@ function renderCard(i) {
   const p = DATA[i];
   let secs = '';
   MEDIOS.forEach(m => {
-    if (fMedio !== 'all' && fMedio !== m) return;
+    const grp = MEDIO_GROUP[m];
+    if (fMedio !== 'all' && fMedio !== grp) return;
     if (fEstado !== 'all' && ST[i][m].e !== fEstado) return;
 
     const s   = ST[i][m];
@@ -327,13 +329,12 @@ function renderCard(i) {
     const okd = s.sent ? 'flex' : 'none';
 
     let cnt = '';
-    if (m === 'meta') {
+    if (m === 'meta_primary') {
+      cnt = `<div class="cbox bm"><span class="ctag">Primary Text — out-of-ad</span><p class="ctxt">${esc(p.meta_primary)}</p><div class="cchars">${p.meta_primary.length} chars</div></div>`;
+    } else if (m === 'meta_creative') {
       const pc = p.meta_creative.length;
       const ok = pc >= 60 && pc <= 100 ? '✅' : '⚠️';
-      cnt = `<div class="meta-g">
-        <div class="cbox bm"><span class="ctag">Primary Text — out-of-ad</span><p class="ctxt">${esc(p.meta_primary)}</p><div class="cchars">${p.meta_primary.length} chars</div></div>
-        <div class="cbox bm"><span class="ctag">Creative Ad — in-image (60-100 chars)</span><p class="ctxt">${esc(p.meta_creative)}</p><div class="cchars">${pc} chars ${ok}</div></div>
-      </div>`;
+      cnt = `<div class="cbox bm"><span class="ctag">Creative Ad — in-image (60-100 chars)</span><p class="ctxt">${esc(p.meta_creative)}</p><div class="cchars">${pc} chars ${ok}</div></div>`;
     } else if (m === 'google') {
       const chips = p.google_headlines.map(h => `<span class="hl">${esc(h)}</span>`).join('');
       const descs = p.google_descs.map(d => `<div class="di">${esc(d)}</div>`).join('');
@@ -349,7 +350,7 @@ function renderCard(i) {
 
     secs += `<div class="msec" id="s-${i}-${m}">
       <div class="mhdr">
-        <div class="mhdr-l"><div class="dot dot-${m}"></div><span class="mnm">${ML[m]}</span></div>
+        <div class="mhdr-l"><div class="dot dot-${grp}"></div><span class="mnm">${ML[m]}</span></div>
         <span class="sbdg ${bc}" id="bdg-${i}-${m}">${bl}</span>
       </div>
       ${cnt}
