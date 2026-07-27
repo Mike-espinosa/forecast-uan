@@ -234,12 +234,17 @@ td.city-name{font-weight:600}
     </div>
   </div>
 
-  <!-- ══ PLACEHOLDER MAYO 2026 ══ -->
+  <!-- ══ COMPARATIVO SEMESTRAL 2026-2 ══ -->
   <div class="sb-divider"></div>
-  <div class="sb-group" id="grp-mayo">
-    <div class="sb-group-header" onclick="toggleGroup('grp-mayo')" style="opacity:.4;cursor:default">
-      <span class="sb-group-label">Mayo 2026</span>
-      <span style="font-size:9px;color:#555;font-style:italic">Próximamente</span>
+  <div class="sb-group open" id="grp-semestre">
+    <div class="sb-group-header" onclick="toggleGroup('grp-semestre')">
+      <span class="sb-group-label">Comparativo Semestral</span>
+      <span class="sb-group-arrow">›</span>
+    </div>
+    <div class="sb-group-items">
+      <div class="sb-item" data-target="sem-resumen"><span class="sb-item-dot"></span>Resumen &amp; Estacionalidad</div>
+      <div class="sb-item" data-target="sem-embudos"><span class="sb-item-dot"></span>Comparación de Embudos</div>
+      <div class="sb-item" data-target="sem-acciones"><span class="sb-item-dot"></span>Acciones Implementadas</div>
     </div>
   </div>
 
@@ -486,6 +491,163 @@ td.city-name{font-weight:600}
         </table>
       </div>
       <div class="action-grid" id="action-cards"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         COMPARATIVO SEMESTRAL 2026-1 vs 2026-2
+    ══════════════════════════════════════════ -->
+
+    <!-- SEMESTRE HERO -->
+    <div class="hero" style="margin-top:8px">
+      <div class="hero-eyebrow"><span class="hero-pulse"></span>Comparativo Semestral · Embudo de Pauta</div>
+      <h1>Semestre 2026-1 vs 2026-2</h1>
+      <div class="hero-sub">Facebook Ads + Google Ads · Leads a Matrícula · Corte 30 mar – 26 jul 2026</div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-val">$290.277.240</div><div class="kpi-label">Inversión 2026-2</div><div class="kpi-sub">30 mar – 26 jul</div></div>
+        <div class="kpi-card"><div class="kpi-val">$17.604</div><div class="kpi-label">CPL Plataforma</div><div class="kpi-sub">Reportado por Meta + Google</div></div>
+        <div class="kpi-card"><div class="kpi-val">$20.317</div><div class="kpi-label">CPL Real (CRM)</div><div class="kpi-sub">Sobre 14.287 leads válidos</div></div>
+        <div class="kpi-card"><div class="kpi-val">98</div><div class="kpi-label">Matriculados 2026-2</div><div class="kpi-sub">vs. 146 en 2026-1 (-32.9%)</div></div>
+      </div>
+    </div>
+
+    <!-- 07 RESUMEN & ESTACIONALIDAD -->
+    <div class="report-section" id="sem-resumen">
+      <div class="sec-header">
+        <div class="sec-eyebrow">07 — Resumen General</div>
+        <div class="sec-title">Inversión, CPL y Comportamiento Estacional</div>
+        <div class="sec-desc">Comparativo CPL de plataforma vs. CPL real validado en CRM, y evolución mensual de la inversión durante el semestre.</div>
+      </div>
+
+      <div class="two-col">
+        <div class="card fb-card">
+          <div class="card-label">CPL Plataforma</div>
+          <div class="big-val">$17.604</div>
+          <div style="font-size:11px;color:var(--g400)">16.489 leads reportados · Facebook + Google + LinkedIn</div>
+        </div>
+        <div class="card gg-card">
+          <div class="card-label">CPL Real (CRM)</div>
+          <div class="big-val">$20.317</div>
+          <div style="font-size:11px;color:var(--g400)">14.287 leads válidos · 15% más alto que el CPL de plataforma</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card fb-card">
+          <div class="card-label">Facebook — Calidad de Lead</div>
+          <div class="card-metrics">
+            <div><div class="m-val">13.536</div><div class="m-label">Leads Plataforma</div></div>
+            <div><div class="m-val">12.406</div><div class="m-label">Leads CRM</div></div>
+            <div><div class="m-val">91.7%</div><div class="m-label">Tasa de Validez</div></div>
+          </div>
+          <div style="margin-top:14px;font-size:11px;color:var(--g600)">CPL plataforma $16.927 → CPL efectivo real <strong>$18.469</strong></div>
+        </div>
+        <div class="card gg-card">
+          <div class="card-label">Google — Calidad de Lead</div>
+          <div class="card-metrics">
+            <div><div class="m-val">2.953</div><div class="m-label">Leads Plataforma</div></div>
+            <div><div class="m-val">1.869</div><div class="m-label">Leads CRM</div></div>
+            <div><div class="m-val">63.3%</div><div class="m-label">Tasa de Validez</div></div>
+          </div>
+          <div style="margin-top:14px;font-size:11px;color:var(--g600)">CPL plataforma $19.647 → CPL efectivo real <strong>$31.042</strong></div>
+        </div>
+      </div>
+
+      <div class="insight">
+        <div class="insight-label">Análisis</div>
+        <p>Google aparece apenas 16% más caro que Facebook al mirar solo el reporte de plataforma, pero al cruzar contra leads reales del CRM la diferencia se dispara a <strong>68% más costoso por lead válido</strong>: más de un tercio de sus registros no pasan el filtro de calidad, frente a solo 8% en Facebook.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Mes</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Abril</td><td class="center">$43.851.173</td><td class="center">2.754</td><td class="center">$15.923</td></tr>
+            <tr><td>Mayo</td><td class="center">$92.821.690</td><td class="center">5.900</td><td class="center">$15.732</td></tr>
+            <tr><td>Junio</td><td class="center">$102.484.326</td><td class="center">5.490</td><td class="center">$18.668</td></tr>
+            <tr><td>Julio (parcial)</td><td class="center">$51.107.739</td><td class="center">2.344</td><td class="center">$21.804</td></tr>
+          </tbody>
+          <tfoot><tr class="total-row">
+            <td>TOTAL</td><td class="center"><span class="yel">$290.277.240</span></td><td class="center"><span class="yel">16.489</span></td><td class="center"><span class="yel">$17.604</span></td>
+          </tr></tfoot>
+        </table>
+      </div>
+
+      <div class="insight" style="margin-top:22px">
+        <div class="insight-label">Comportamiento Estacional</div>
+        <p>La inversión escala de forma sostenida desde abril y toca su punto máximo en las <strong>semanas 26-27 (últimas dos semanas de junio)</strong>, con cerca de $26.8M y $25.6M invertidos respectivamente — una decisión estratégica para capitalizar el pico estacional de captación de prospectos antes del cierre de inscripciones. Ese período coincidió con un entorno de mercado más competido y costoso —salida de la temporada electoral y pauta digital saturada por el Mundial—, lo que presionó el CPM y el CPL al alza en toda la industria (+37% de abril a julio). Aun así, se sostuvo el volumen de leads en las semanas de mayor demanda y se logró mitigar el impacto manteniendo Facebook como canal ancla de eficiencia. Una vez cerrada la ventana de admisión, la inversión bajó de forma controlada (semana 28 en adelante), liberando presupuesto para el siguiente ciclo.</p>
+      </div>
+    </div>
+
+    <!-- 08 COMPARACIÓN DE EMBUDOS -->
+    <div class="report-section" id="sem-embudos">
+      <div class="sec-header">
+        <div class="sec-eyebrow">08 — Comparación de Embudos</div>
+        <div class="sec-title">Semestre 2026-1 vs. 2026-2</div>
+        <div class="sec-desc">Leads → Inscrito → Pendiente → Admitido → Matriculado, comparado entre los dos semestres del año.</div>
+      </div>
+
+      <div class="two-col">
+        <div class="card pregrado">
+          <div class="card-label">Mezcla de Plataforma — 2026-1</div>
+          <div class="card-metrics">
+            <div><div class="m-val">19.338</div><div class="m-label">Leads</div></div>
+            <div><div class="m-val">45.1%</div><div class="m-label">Meta</div></div>
+            <div><div class="m-val">54.9%</div><div class="m-label">Google</div></div>
+          </div>
+        </div>
+        <div class="card posgrado">
+          <div class="card-label">Mezcla de Plataforma — 2026-2</div>
+          <div class="card-metrics">
+            <div><div class="m-val">14.287</div><div class="m-label">Leads</div></div>
+            <div><div class="m-val">86.8%</div><div class="m-label">Meta</div></div>
+            <div><div class="m-val">13.1%</div><div class="m-label">Google</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Etapa</th><th class="center">2026-1</th><th class="center">2026-2</th><th class="center">Variación</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Leads</td><td class="center">19.338</td><td class="center">14.287</td><td class="center" style="color:var(--red);font-weight:700">-26.1%</td></tr>
+            <tr><td>Inscrito</td><td class="center">499 (2.58%)</td><td class="center">523 (3.66%)</td><td class="center" style="color:var(--green);font-weight:700">+4.8%</td></tr>
+            <tr><td>Pendiente</td><td class="center">224 (44.9% de Inscrito)</td><td class="center">222 (42.5% de Inscrito)</td><td class="center" style="color:var(--amber);font-weight:700">-0.9%</td></tr>
+            <tr><td>Admitido</td><td class="center">189 (84.4% de Pendiente)</td><td class="center">180 (81.1% de Pendiente)</td><td class="center" style="color:var(--amber);font-weight:700">-4.8%</td></tr>
+            <tr><td>Matriculado</td><td class="center">146 (77.2% de Admitido)</td><td class="center">98 (54.4% de Admitido)</td><td class="center" style="color:var(--red);font-weight:700">-32.9%</td></tr>
+          </tbody>
+          <tfoot><tr class="total-row">
+            <td>Conversión final</td><td class="center"><span class="yel">0.75%</span></td><td class="center"><span class="yel">0.69%</span></td><td class="center"><span class="yel">-9.1% relativo</span></td>
+          </tr></tfoot>
+        </table>
+      </div>
+
+      <div class="insight" style="margin-top:22px">
+        <div class="insight-label">Análisis</div>
+        <p>Con 26% menos leads, se logró un volumen similar —incluso mayor tasa— de Inscritos (2.58% → 3.66%, <strong>+4.8% en volumen</strong>): la calidad del lead que entra al embudo mejoró, coherente con el giro de inversión hacia Meta, que valida casi el doble de leads que Google. El problema está al final del embudo: la conversión <strong>Admitido → Matriculado cae de 77.2% a 54.4%</strong>, la caída más fuerte de todo el comparativo. De cada 10 admitidos en 2026-1, casi 8 se matriculaban; en 2026-2 solo 5. El resultado neto —146 a 98 matriculados— es una caída mayor a la caída de leads, lo que confirma que el cuello de botella no es de volumen ni calidad de pauta, sino de las últimas etapas del proceso de matrícula.</p>
+      </div>
+    </div>
+
+    <!-- 09 ACCIONES IMPLEMENTADAS -->
+    <div class="report-section" id="sem-acciones">
+      <div class="sec-header">
+        <div class="sec-eyebrow">09 — Acciones Implementadas</div>
+        <div class="sec-title">Ajustes Durante el Período</div>
+        <div class="sec-desc">Medidas tomadas sobre landing pages y formularios para mejorar calidad de lead y contactabilidad.</div>
+      </div>
+      <div class="action-grid">
+        <div class="action-card" style="border-left-color:var(--yellow)">
+          <div class="action-city">Fricción en Landing Pages</div>
+          <div class="action-text">Se incorporó la pregunta de "nivel de formación actual" como filtro adicional en el formulario, buscando descartar tráfico no calificado antes de que entre al CRM como lead.</div>
+        </div>
+        <div class="action-card" style="border-left-color:var(--yellow)">
+          <div class="action-city">Formularios Nativos de Meta</div>
+          <div class="action-text">En ciudades específicas se migró del formulario de landing al formulario nativo de Meta (Instant Forms), con las mismas preguntas de fricción, para mejorar la contactabilidad y reducir el abandono.</div>
+        </div>
+      </div>
     </div>
 
   </div><!-- /content -->
@@ -735,7 +897,9 @@ const navObs = new IntersectionObserver(entries=>{
       const names = {
         'ma-resumen':'Resumen General','ma-inversion':'Inversión por Ciudad',
         'ma-cumplimiento':'Cumplimiento Leads','ma-cpl':'Análisis CPL',
-        'ma-facultades':'CPL por Facultad','ma-casos':'Casos Críticos'
+        'ma-facultades':'CPL por Facultad','ma-casos':'Casos Críticos',
+        'sem-resumen':'Resumen & Estacionalidad','sem-embudos':'Comparación de Embudos',
+        'sem-acciones':'Acciones Implementadas'
       };
       const el = document.getElementById('current-section-name');
       if(el && names[e.target.id]) el.textContent = names[e.target.id];
@@ -761,9 +925,10 @@ async function exportPDF(){
     // Build an off-screen wrapper with only the report content — no sidebar, no topbar
     const wrapper = document.createElement('div');
     wrapper.style.cssText = 'position:fixed;top:0;left:-9999px;width:900px;background:#F8F8F8;padding:40px 48px;font-family:Poppins,sans-serif;box-sizing:border-box;';
-    const sections = ['ma-resumen','ma-inversion','ma-cumplimiento','ma-cpl','ma-facultades','ma-casos'];
-    const hero = document.querySelector('.hero');
-    [hero, ...sections.map(id=>document.getElementById(id))].forEach(el=>{
+    const sections = ['ma-resumen','ma-inversion','ma-cumplimiento','ma-cpl','ma-facultades','ma-casos',
+      'sem-resumen','sem-embudos','sem-acciones'];
+    const heroes = document.querySelectorAll('.hero');
+    [...heroes, ...sections.map(id=>document.getElementById(id))].forEach(el=>{
       if(!el) return;
       const clone = el.cloneNode(true);
       clone.style.marginBottom = '28px';
