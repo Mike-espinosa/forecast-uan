@@ -197,6 +197,31 @@ td.city-name{font-weight:600}
   .report-section{opacity:1!important;transform:none!important;break-inside:avoid}
   .hero{break-inside:avoid}
 }
+
+/* ── CITY ACCORDION ── */
+.city-acc-list{display:flex;flex-direction:column;gap:10px}
+.city-acc{border:1px solid var(--g200);border-radius:var(--r-md);overflow:hidden;background:#fff;transition:.15s}
+.city-acc.highlight{border-color:var(--yellow);background:#FFFDF5}
+.city-acc-head{display:flex;align-items:center;gap:16px;padding:14px 18px;cursor:pointer;user-select:none}
+.city-acc-head:hover{background:var(--g50)}
+.city-acc.highlight .city-acc-head:hover{background:#FFF9E6}
+.city-acc-arrow{font-size:15px;color:var(--g400);transition:transform .2s;flex-shrink:0;width:12px;text-align:center}
+.city-acc.open .city-acc-arrow{transform:rotate(90deg);color:var(--black)}
+.city-acc-name{font-weight:700;font-size:12.5px;flex:1;min-width:120px}
+.city-acc-stats{display:flex;gap:26px;flex-wrap:wrap;justify-content:flex-end}
+.city-acc-stat{text-align:right;min-width:78px}
+.city-acc-stat b{display:block;font-size:12.5px;font-weight:700}
+.city-acc-stat small{display:block;font-size:8.5px;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;margin-top:1px}
+.city-acc-body{max-height:0;overflow:hidden;transition:max-height .25s ease}
+.city-acc.open .city-acc-body{max-height:220px}
+.city-acc-body-inner{padding:2px 18px 16px 40px}
+.city-acc-body-inner table{width:100%;border-collapse:collapse;font-size:11.5px}
+.city-acc-body-inner th{text-align:left;font-weight:600;color:var(--g400);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid var(--g200)}
+.city-acc-body-inner td{padding:7px 8px;border-bottom:1px solid var(--g100)}
+.city-acc-body-inner tr:last-child td{border-bottom:none}
+.city-acc-body-inner .nivel-pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:600}
+.nivel-pill.pregrado{background:#E3F2FD;color:#1565C0}
+.nivel-pill.posgrado{background:#F3E5F5;color:#7B1FA2}
 </style>
 </head>
 <body>
@@ -245,6 +270,20 @@ td.city-name{font-weight:600}
       <div class="sb-item" data-target="sem-resumen"><span class="sb-item-dot"></span>Resumen &amp; Estacionalidad</div>
       <div class="sb-item" data-target="sem-embudos"><span class="sb-item-dot"></span>Comparación de Embudos</div>
       <div class="sb-item" data-target="sem-acciones"><span class="sb-item-dot"></span>Acciones Implementadas</div>
+    </div>
+  </div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-group open" id="grp-cierre">
+    <div class="sb-group-header" onclick="toggleGroup('grp-cierre')">
+      <span class="sb-group-label">Cierre 2026-2</span>
+      <span class="sb-group-arrow">›</span>
+    </div>
+    <div class="sb-group-items">
+      <div class="sb-item" data-target="cierre-resumen"><span class="sb-item-dot"></span>Resumen General</div>
+      <div class="sb-item" data-target="cierre-inversion"><span class="sb-item-dot"></span>Inversión por Ciudad y Nivel</div>
+      <div class="sb-item" data-target="cierre-plataforma"><span class="sb-item-dot"></span>Plataforma vs. CRM</div>
+      <div class="sb-item" data-target="cierre-embudo"><span class="sb-item-dot"></span>Embudo de Conversión</div>
     </div>
   </div>
 
@@ -650,6 +689,766 @@ td.city-name{font-weight:600}
       </div>
     </div>
 
+
+    <!-- ══════════════════════════════════════════
+         REPORTE DE CIERRE 2026-2
+    ══════════════════════════════════════════ -->
+
+    <!-- CIERRE HERO -->
+    <div class="hero" style="margin-top:8px">
+      <div class="hero-eyebrow"><span class="hero-pulse"></span>Reporte de Cierre · Semestre 2026-2</div>
+      <h1>Cierre 2026-2</h1>
+      <div class="hero-sub">Facebook + Google + LinkedIn · Pregrado &amp; Posgrado · Corte 31 mar – 31 jul 2026</div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-val">$290.794.156</div><div class="kpi-label">Inversión Total</div><div class="kpi-sub">31 mar – 31 jul</div></div>
+        <div class="kpi-card"><div class="kpi-val">14.558</div><div class="kpi-label">Leads CRM</div><div class="kpi-sub">vs. 16.550 reportados por plataforma</div></div>
+        <div class="kpi-card"><div class="kpi-val">$19.974</div><div class="kpi-label">CPL CRM</div><div class="kpi-sub">Sobre leads válidos en CRM</div></div>
+        <div class="kpi-card"><div class="kpi-val">87</div><div class="kpi-label">Matrículas</div><div class="kpi-sub">0.61% conversión sobre 14.273 aspirantes</div></div>
+      </div>
+    </div>
+
+    <!-- 10 RESUMEN CIERRE -->
+    <div class="report-section" id="cierre-resumen">
+      <div class="sec-header">
+        <div class="sec-eyebrow">10 — Resumen General</div>
+        <div class="sec-title">Inversión y Calidad de Lead por Nivel</div>
+        <div class="sec-desc">Comparativo de leads reportados por plataforma (Meta + Google + LinkedIn) contra leads válidos que efectivamente llegaron al CRM.</div>
+      </div>
+
+      <div class="two-col">
+        <div class="card fb-card">
+          <div class="card-label">Pregrado</div>
+          <div class="card-metrics">
+            <div><div class="m-val">$201.702.255</div><div class="m-label">Inversión</div></div>
+            <div><div class="m-val">11.583</div><div class="m-label">Leads Plataforma</div></div>
+            <div><div class="m-val">10.823</div><div class="m-label">Leads CRM</div></div>
+          </div>
+          <div style="margin-top:14px;font-size:11px;color:var(--g600)">CPL plataforma $17.413 → CPL real <strong>$18.636</strong> · pérdida de leads <strong>6.6%</strong></div>
+        </div>
+        <div class="card gg-card">
+          <div class="card-label">Posgrado</div>
+          <div class="card-metrics">
+            <div><div class="m-val">$89.084.255</div><div class="m-label">Inversión</div></div>
+            <div><div class="m-val">4.967</div><div class="m-label">Leads Plataforma</div></div>
+            <div><div class="m-val">3.735</div><div class="m-label">Leads CRM</div></div>
+          </div>
+          <div style="margin-top:14px;font-size:11px;color:var(--g600)">CPL plataforma $17.936 → CPL real <strong>$23.851</strong> · pérdida de leads <strong>24.8%</strong></div>
+        </div>
+      </div>
+
+      <div class="insight">
+        <div class="insight-label">Análisis</div>
+        <p>Posgrado pierde 1 de cada 4 leads reportados por plataforma en el tránsito hacia el CRM (24.8%), casi cuatro veces la tasa de pérdida de Pregrado (6.6%). Esto eleva su CPL real 33% por encima del CPL de plataforma, mientras que en Pregrado la diferencia es de apenas 7%. Vale la pena revisar los formularios y la integración CRM de las campañas de Posgrado — errores de captura, duplicados no sincronizados o fallas de integración suelen ser la causa más común de esta brecha.</p>
+      </div>
+    </div>
+
+    <!-- 11 INVERSIÓN POR CIUDAD Y NIVEL -->
+    <div class="report-section" id="cierre-inversion">
+      <div class="sec-header">
+        <div class="sec-eyebrow">11 — Inversión por Ciudad y Nivel</div>
+        <div class="sec-title">Inversión, leads CRM y CPL por ciudad</div>
+        <div class="sec-desc">Clic en una ciudad para ver el detalle por Pregrado/Posgrado · Incluye "Colombia (Genérica)": campañas sin ciudad asignada, y "Buenaventura": lead aislado sin inversión activa en el período.</div>
+      </div>
+      <div class="two-col" style="margin-bottom:16px">
+        <div class="card fb-card">
+          <div class="card-label">Pregrado — Total</div>
+          <div class="big-val">$201.702.255</div>
+          <div style="font-size:11px;color:var(--g400)">10.823 leads CRM · CPL $18.636</div>
+        </div>
+        <div class="card gg-card">
+          <div class="card-label">Posgrado — Total</div>
+          <div class="big-val">$89.084.254</div>
+          <div style="font-size:11px;color:var(--g400)">3.735 leads CRM · CPL $23.851</div>
+        </div>
+      </div>
+      <div class="city-acc-list">
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Bogotá</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$60.051.702</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>6.179</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$9.719</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$30.615.588</td><td class="center">4.129</td><td class="center">$7.415</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$29.436.113</td><td class="center">2.050</td><td class="center">$14.359</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Sede Virtual</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$41.131.775</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>2.075</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$19.823</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$11.745.278</td><td class="center">1.022</td><td class="center">$11.492</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$29.386.497</td><td class="center">1.053</td><td class="center">$27.907</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Ibagué</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$23.569.043</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>531</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$44.386</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$12.383.208</td><td class="center">341</td><td class="center">$36.314</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$11.185.836</td><td class="center">190</td><td class="center">$58.873</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Duitama</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$20.056.855</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>195</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$102.856</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$11.389.743</td><td class="center">144</td><td class="center">$79.095</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$8.667.112</td><td class="center">51</td><td class="center">$169.943</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Neiva</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$19.845.294</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>656</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$30.252</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$17.584.574</td><td class="center">588</td><td class="center">$29.906</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$2.260.721</td><td class="center">68</td><td class="center">$33.246</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Tunja</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$15.677.054</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>302</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$51.911</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$15.677.054</td><td class="center">301</td><td class="center">$52.083</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$0</td><td class="center">1</td><td class="center">$0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Santa Marta</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$13.296.707</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>393</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$33.834</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$13.296.707</td><td class="center">393</td><td class="center">$33.834</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Popayán</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$11.553.886</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>582</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$19.852</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$8.879.480</td><td class="center">465</td><td class="center">$19.096</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$2.674.405</td><td class="center">117</td><td class="center">$22.858</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Armenia</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$10.978.087</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>506</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$21.696</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$5.504.517</td><td class="center">311</td><td class="center">$17.699</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$5.473.570</td><td class="center">195</td><td class="center">$28.070</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Cartagena</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$9.708.276</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>361</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$26.893</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$9.708.276</td><td class="center">359</td><td class="center">$27.043</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$0</td><td class="center">2</td><td class="center">$0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Villavicencio</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$9.437.979</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>432</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$21.847</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$9.437.979</td><td class="center">431</td><td class="center">$21.898</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$0</td><td class="center">1</td><td class="center">$0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Bucaramanga</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$8.935.009</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>376</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$23.763</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$8.935.009</td><td class="center">375</td><td class="center">$23.827</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$0</td><td class="center">1</td><td class="center">$0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Palmira</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$8.696.118</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>212</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$41.019</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$8.696.118</td><td class="center">212</td><td class="center">$41.019</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Cúcuta</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$6.346.211</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>300</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$21.154</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$6.346.211</td><td class="center">300</td><td class="center">$21.154</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Cali</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$5.138.618</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>394</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$13.042</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$5.138.618</td><td class="center">394</td><td class="center">$13.042</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Manizales</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$4.593.984</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>61</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$75.311</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$4.593.984</td><td class="center">61</td><td class="center">$75.311</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Riohacha</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$3.882.829</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>180</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$21.571</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$3.882.829</td><td class="center">179</td><td class="center">$21.692</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$0</td><td class="center">1</td><td class="center">$0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Puerto Colombia</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$3.800.493</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>201</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$18.908</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$3.800.493</td><td class="center">201</td><td class="center">$18.908</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Pasto</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$3.533.357</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>135</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$26.173</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$3.533.357</td><td class="center">134</td><td class="center">$26.368</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$0</td><td class="center">1</td><td class="center">$0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Medellín</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$3.454.963</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>274</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$12.609</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$3.454.963</td><td class="center">273</td><td class="center">$12.656</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$0</td><td class="center">1</td><td class="center">$0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Valledupar</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$1.923.247</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>113</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$17.020</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$1.923.247</td><td class="center">112</td><td class="center">$17.172</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$0</td><td class="center">1</td><td class="center">$0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc highlight">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Colombia (Genérica — sin ciudad)</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$1.881.472</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>0</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>—</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$1.873.825</td><td class="center">0</td><td class="center">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Pereira</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$1.295.035</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>37</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$35.001</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$1.295.035</td><td class="center">36</td><td class="center">$35.973</td></tr>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$0</td><td class="center">1</td><td class="center">$0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Buga</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$1.187.359</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>54</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$21.988</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$1.187.359</td><td class="center">54</td><td class="center">$21.988</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Roldanillo</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$818.803</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>8</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$102.350</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill pregrado">Pregrado</span></td><td class="center">$818.803</td><td class="center">8</td><td class="center">$102.350</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+<div class="city-acc highlight">
+        <div class="city-acc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span class="city-acc-arrow">›</span>
+          <span class="city-acc-name">Buenaventura</span>
+          <span class="city-acc-stats">
+            <span class="city-acc-stat"><b>$0</b><small>Inversión</small></span>
+            <span class="city-acc-stat"><b>1</b><small>Leads CRM</small></span>
+            <span class="city-acc-stat"><b>$0</b><small>CPL CRM</small></span>
+          </span>
+        </div>
+        <div class="city-acc-body">
+          <div class="city-acc-body-inner">
+            <table>
+              <thead><tr><th>Nivel</th><th class="center">Inversión</th><th class="center">Leads</th><th class="center">CPL</th></tr></thead>
+              <tbody>
+<tr><td><span class="nivel-pill posgrado">Posgrado</span></td><td class="center">$0</td><td class="center">1</td><td class="center">$0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div class="table-wrap" style="margin-top:14px">
+        <table><tfoot><tr class="total-row">
+          <td>TOTAL 26 ciudades</td>
+          <td class="center"><span class="yel">$290.794.156</span></td>
+          <td class="center"><span class="yel">14.558 leads</span></td>
+          <td class="center"><span class="yel">CPL $19.975</span></td>
+        </tr></tfoot></table>
+      </div>
+    </div>
+
+    <!-- 12 PLATAFORMA VS CRM POR CIUDAD -->
+    <div class="report-section" id="cierre-plataforma">
+      <div class="sec-header">
+        <div class="sec-eyebrow">12 — Leads Plataforma vs. CRM por Ciudad</div>
+        <div class="sec-title">Dónde se pierden más leads en el tránsito al CRM</div>
+        <div class="sec-desc">% Pérdida = leads reportados como completados por la plataforma que no llegaron a registrarse en el CRM · Verde ≤10% · Ámbar 10–20% · Rojo &gt;20%</div>
+      </div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>≤ 10%</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--amber)"></div>10–20%</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>&gt; 20%</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Ciudad</th><th class="center">Inversión</th>
+            <th class="center">Leads Plataforma</th><th class="center">CPL Plataforma</th>
+            <th class="center">Leads CRM</th><th class="center">CPL CRM</th>
+            <th class="center">% Pérdida</th>
+          </tr></thead>
+          <tbody>
+<tr><td class="city-name">Bogotá</td><td class="center">$60.051.702</td><td class="center">5.441</td><td class="center">$11.036</td><td class="center">6.179</td><td class="center">$9.719</td><td class="center"><span style="font-weight:700;color:var(--green)">-13.6%</span></td></tr>
+<tr><td class="city-name">Sede Virtual</td><td class="center">$41.131.775</td><td class="center">3.585</td><td class="center">$11.472</td><td class="center">2.075</td><td class="center">$19.823</td><td class="center"><span style="font-weight:700;color:var(--red)">42.1%</span></td></tr>
+<tr><td class="city-name">Ibagué</td><td class="center">$23.569.043</td><td class="center">767</td><td class="center">$30.734</td><td class="center">531</td><td class="center">$44.386</td><td class="center"><span style="font-weight:700;color:var(--red)">30.8%</span></td></tr>
+<tr><td class="city-name">Duitama</td><td class="center">$20.056.855</td><td class="center">520</td><td class="center">$38.597</td><td class="center">195</td><td class="center">$102.856</td><td class="center"><span style="font-weight:700;color:var(--red)">62.5%</span></td></tr>
+<tr><td class="city-name">Neiva</td><td class="center">$19.845.294</td><td class="center">818</td><td class="center">$24.272</td><td class="center">656</td><td class="center">$30.252</td><td class="center"><span style="font-weight:700;color:var(--amber)">19.8%</span></td></tr>
+<tr><td class="city-name">Tunja</td><td class="center">$15.677.054</td><td class="center">541</td><td class="center">$28.956</td><td class="center">302</td><td class="center">$51.911</td><td class="center"><span style="font-weight:700;color:var(--red)">44.2%</span></td></tr>
+<tr><td class="city-name">Santa Marta</td><td class="center">$13.296.707</td><td class="center">500</td><td class="center">$26.567</td><td class="center">393</td><td class="center">$33.834</td><td class="center"><span style="font-weight:700;color:var(--red)">21.5%</span></td></tr>
+<tr><td class="city-name">Popayán</td><td class="center">$11.553.886</td><td class="center">622</td><td class="center">$18.571</td><td class="center">582</td><td class="center">$19.852</td><td class="center"><span style="font-weight:700;color:var(--green)">6.5%</span></td></tr>
+<tr><td class="city-name">Armenia</td><td class="center">$10.978.087</td><td class="center">356</td><td class="center">$30.837</td><td class="center">506</td><td class="center">$21.696</td><td class="center"><span style="font-weight:700;color:var(--green)">-42.1%</span></td></tr>
+<tr><td class="city-name">Cartagena</td><td class="center">$9.708.276</td><td class="center">485</td><td class="center">$20.017</td><td class="center">361</td><td class="center">$26.893</td><td class="center"><span style="font-weight:700;color:var(--red)">25.6%</span></td></tr>
+<tr><td class="city-name">Villavicencio</td><td class="center">$9.437.979</td><td class="center">427</td><td class="center">$22.103</td><td class="center">432</td><td class="center">$21.847</td><td class="center"><span style="font-weight:700;color:var(--green)">-1.2%</span></td></tr>
+<tr><td class="city-name">Bucaramanga</td><td class="center">$8.935.009</td><td class="center">359</td><td class="center">$24.875</td><td class="center">376</td><td class="center">$23.763</td><td class="center"><span style="font-weight:700;color:var(--green)">-4.7%</span></td></tr>
+<tr><td class="city-name">Palmira</td><td class="center">$8.696.118</td><td class="center">330</td><td class="center">$26.352</td><td class="center">212</td><td class="center">$41.019</td><td class="center"><span style="font-weight:700;color:var(--red)">35.8%</span></td></tr>
+<tr><td class="city-name">Cúcuta</td><td class="center">$6.346.211</td><td class="center">310</td><td class="center">$20.472</td><td class="center">300</td><td class="center">$21.154</td><td class="center"><span style="font-weight:700;color:var(--green)">3.2%</span></td></tr>
+<tr><td class="city-name">Cali</td><td class="center">$5.138.618</td><td class="center">313</td><td class="center">$16.417</td><td class="center">394</td><td class="center">$13.042</td><td class="center"><span style="font-weight:700;color:var(--green)">-25.9%</span></td></tr>
+<tr><td class="city-name">Manizales</td><td class="center">$4.593.984</td><td class="center">107</td><td class="center">$42.934</td><td class="center">61</td><td class="center">$75.311</td><td class="center"><span style="font-weight:700;color:var(--red)">43.0%</span></td></tr>
+<tr><td class="city-name">Riohacha</td><td class="center">$3.882.829</td><td class="center">255</td><td class="center">$15.227</td><td class="center">180</td><td class="center">$21.571</td><td class="center"><span style="font-weight:700;color:var(--red)">29.4%</span></td></tr>
+<tr><td class="city-name">Puerto Colombia</td><td class="center">$3.800.493</td><td class="center">176</td><td class="center">$21.594</td><td class="center">201</td><td class="center">$18.908</td><td class="center"><span style="font-weight:700;color:var(--green)">-14.2%</span></td></tr>
+<tr><td class="city-name">Pasto</td><td class="center">$3.533.357</td><td class="center">110</td><td class="center">$32.121</td><td class="center">135</td><td class="center">$26.173</td><td class="center"><span style="font-weight:700;color:var(--green)">-22.7%</span></td></tr>
+<tr><td class="city-name">Medellín</td><td class="center">$3.454.963</td><td class="center">210</td><td class="center">$16.452</td><td class="center">274</td><td class="center">$12.609</td><td class="center"><span style="font-weight:700;color:var(--green)">-30.5%</span></td></tr>
+<tr><td class="city-name">Valledupar</td><td class="center">$1.923.247</td><td class="center">129</td><td class="center">$14.909</td><td class="center">113</td><td class="center">$17.020</td><td class="center"><span style="font-weight:700;color:var(--amber)">12.4%</span></td></tr>
+<tr style="background:#FFFDE7"><td class="city-name">Colombia (Genérica — sin ciudad)</td><td class="center">$1.881.472</td><td class="center">96</td><td class="center">$19.599</td><td class="center">0</td><td class="center">—</td><td class="center"><span style="font-weight:700;color:var(--red)">100.0%</span></td></tr>
+<tr><td class="city-name">Pereira</td><td class="center">$1.295.035</td><td class="center">52</td><td class="center">$24.905</td><td class="center">37</td><td class="center">$35.001</td><td class="center"><span style="font-weight:700;color:var(--red)">28.8%</span></td></tr>
+<tr><td class="city-name">Buga</td><td class="center">$1.187.359</td><td class="center">29</td><td class="center">$40.943</td><td class="center">54</td><td class="center">$21.988</td><td class="center"><span style="font-weight:700;color:var(--green)">-86.2%</span></td></tr>
+<tr><td class="city-name">Roldanillo</td><td class="center">$818.803</td><td class="center">11</td><td class="center">$74.437</td><td class="center">8</td><td class="center">$102.350</td><td class="center"><span style="font-weight:700;color:var(--red)">27.3%</span></td></tr>
+          </tbody>
+          <tfoot><tr class="total-row">
+            <td>TOTAL</td><td class="center">$290.794.156</td>
+            <td class="center">16.549</td><td class="center">$17.572</td>
+            <td class="center">14.557</td><td class="center">$19.976</td>
+            <td class="center"><span class="yel">12.0%</span></td>
+          </tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- 13 EMBUDO ASPIRANTES-ADMISION-MATRICULA -->
+    <div class="report-section" id="cierre-embudo">
+      <div class="sec-header">
+        <div class="sec-eyebrow">13 — Embudo de Conversión y Costo por Etapa</div>
+        <div class="sec-title">Posibles Aspirantes → Admisión → Matrícula por Ciudad, con Inversión y Costo por Etapa</div>
+        <div class="sec-desc">Fuente: indicadores de conversión entregados por UAN, cruzados con la inversión en pauta por ciudad · Costo/Lead, Costo/Admisión y Costo/Matrícula son acumulados: inversión total de la ciudad dividida entre el volumen de esa etapa.</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Ciudad</th><th class="center">Inversión</th>
+            <th class="center">Posibles Aspirantes</th><th class="center">Costo/Lead</th>
+            <th class="center">Admisiones</th><th class="center">Costo/Admisión</th>
+            <th class="center">Matriculados</th><th class="center">Costo/Matrícula</th>
+          </tr></thead>
+          <tbody>
+<tr><td class="city-name">Bogotá</td><td class="center">$60.051.702</td><td class="center">6.091</td><td class="center">$9.859</td><td class="center">197</td><td class="center">$304.831</td><td class="center">34</td><td class="center"><strong>$1.766.227</strong></td></tr>
+<tr style="background:#FFF3E0"><td class="city-name">Sede Virtual</td><td class="center">$41.131.775</td><td class="center">1.973</td><td class="center">$20.847</td><td class="center">0</td><td class="center">—</td><td class="center">0</td><td class="center">—</td></tr>
+<tr><td class="city-name">Ibagué</td><td class="center">$23.569.043</td><td class="center">531</td><td class="center">$44.386</td><td class="center">19</td><td class="center">$1.240.476</td><td class="center">8</td><td class="center"><strong>$2.946.130</strong></td></tr>
+<tr><td class="city-name">Duitama</td><td class="center">$20.056.855</td><td class="center">195</td><td class="center">$102.856</td><td class="center">10</td><td class="center">$2.005.686</td><td class="center">3</td><td class="center"><strong>$6.685.618</strong></td></tr>
+<tr><td class="city-name">Neiva</td><td class="center">$19.845.294</td><td class="center">656</td><td class="center">$30.252</td><td class="center">28</td><td class="center">$708.761</td><td class="center">10</td><td class="center"><strong>$1.984.529</strong></td></tr>
+<tr><td class="city-name">Tunja</td><td class="center">$15.677.054</td><td class="center">302</td><td class="center">$51.911</td><td class="center">13</td><td class="center">$1.205.927</td><td class="center">1</td><td class="center"><strong>$15.677.054</strong></td></tr>
+<tr><td class="city-name">Santa Marta</td><td class="center">$13.296.707</td><td class="center">393</td><td class="center">$33.834</td><td class="center">9</td><td class="center">$1.477.412</td><td class="center">1</td><td class="center"><strong>$13.296.707</strong></td></tr>
+<tr><td class="city-name">Popayán</td><td class="center">$11.553.886</td><td class="center">582</td><td class="center">$19.852</td><td class="center">30</td><td class="center">$385.130</td><td class="center">9</td><td class="center"><strong>$1.283.765</strong></td></tr>
+<tr><td class="city-name">Armenia</td><td class="center">$10.978.087</td><td class="center">458</td><td class="center">$23.970</td><td class="center">9</td><td class="center">$1.219.787</td><td class="center">2</td><td class="center"><strong>$5.489.044</strong></td></tr>
+<tr><td class="city-name">Cartagena</td><td class="center">$9.708.276</td><td class="center">361</td><td class="center">$26.893</td><td class="center">9</td><td class="center">$1.078.697</td><td class="center">1</td><td class="center"><strong>$9.708.276</strong></td></tr>
+<tr><td class="city-name">Villavicencio</td><td class="center">$9.437.979</td><td class="center">432</td><td class="center">$21.847</td><td class="center">16</td><td class="center">$589.874</td><td class="center">5</td><td class="center"><strong>$1.887.596</strong></td></tr>
+<tr><td class="city-name">Bucaramanga</td><td class="center">$8.935.009</td><td class="center">376</td><td class="center">$23.763</td><td class="center">10</td><td class="center">$893.501</td><td class="center">2</td><td class="center"><strong>$4.467.504</strong></td></tr>
+<tr><td class="city-name">Palmira</td><td class="center">$8.696.118</td><td class="center">212</td><td class="center">$41.019</td><td class="center">9</td><td class="center">$966.235</td><td class="center">2</td><td class="center"><strong>$4.348.059</strong></td></tr>
+<tr><td class="city-name">Cúcuta</td><td class="center">$6.346.211</td><td class="center">300</td><td class="center">$21.154</td><td class="center">3</td><td class="center">$2.115.404</td><td class="center">2</td><td class="center"><strong>$3.173.106</strong></td></tr>
+<tr><td class="city-name">Cali</td><td class="center">$5.138.618</td><td class="center">394</td><td class="center">$13.042</td><td class="center">20</td><td class="center">$256.931</td><td class="center">2</td><td class="center"><strong>$2.569.309</strong></td></tr>
+<tr style="background:#FFF3E0"><td class="city-name">Manizales</td><td class="center">$4.593.984</td><td class="center">61</td><td class="center">$75.311</td><td class="center">0</td><td class="center">—</td><td class="center">0</td><td class="center">—</td></tr>
+<tr><td class="city-name">Riohacha</td><td class="center">$3.882.829</td><td class="center">180</td><td class="center">$21.571</td><td class="center">3</td><td class="center">$1.294.276</td><td class="center">1</td><td class="center"><strong>$3.882.829</strong></td></tr>
+<tr><td class="city-name">Puerto Colombia</td><td class="center">$3.800.493</td><td class="center">201</td><td class="center">$18.908</td><td class="center">12</td><td class="center">$316.708</td><td class="center">2</td><td class="center"><strong>$1.900.246</strong></td></tr>
+<tr><td class="city-name">Pasto</td><td class="center">$3.533.357</td><td class="center">88</td><td class="center">$40.152</td><td class="center">3</td><td class="center">$1.177.786</td><td class="center">1</td><td class="center"><strong>$3.533.357</strong></td></tr>
+<tr><td class="city-name">Medellín</td><td class="center">$3.454.963</td><td class="center">274</td><td class="center">$12.609</td><td class="center">4</td><td class="center">$863.741</td><td class="center">1</td><td class="center"><strong>$3.454.963</strong></td></tr>
+<tr><td class="city-name">Valledupar</td><td class="center">$1.923.247</td><td class="center">113</td><td class="center">$17.020</td><td class="center">2</td><td class="center">$961.624</td><td class="center">0</td><td class="center">—</td></tr>
+<tr><td class="city-name">Pereira</td><td class="center">$1.295.035</td><td class="center">37</td><td class="center">$35.001</td><td class="center">3</td><td class="center">$431.678</td><td class="center">0</td><td class="center">—</td></tr>
+<tr><td class="city-name">Buga</td><td class="center">$1.187.359</td><td class="center">54</td><td class="center">$21.988</td><td class="center">2</td><td class="center">$593.680</td><td class="center">0</td><td class="center">—</td></tr>
+<tr><td class="city-name">Roldanillo</td><td class="center">$818.803</td><td class="center">8</td><td class="center">$102.350</td><td class="center">0</td><td class="center">—</td><td class="center">0</td><td class="center">—</td></tr>
+<tr style="background:#FFFDE7"><td class="city-name">Buenaventura</td><td class="center"><span style="font-style:italic;color:var(--g400)">Campaña General*</span></td><td class="center">1</td><td class="center">—</td><td class="center">1</td><td class="center">—</td><td class="center">0</td><td class="center">—</td></tr>
+          </tbody>
+          <tfoot><tr class="total-row">
+            <td>TOTAL</td><td class="center"><span class="yel">$288.912.684</span></td>
+            <td class="center">14.273</td><td class="center"><span class="yel">$20.242</span></td>
+            <td class="center">412</td><td class="center"><span class="yel">$701.244</span></td>
+            <td class="center">87</td><td class="center"><span class="yel">$3.320.835</span></td>
+          </tr></tfoot>
+        </table>
+      </div>
+      <div style="font-size:10.5px;color:var(--g400);margin-top:8px">*Buenaventura no tiene inversión geo-segmentada en la fuente de pauta — su lead probablemente proviene de una campaña general/nacional sin ciudad asignada, no de pauta dirigida específicamente a esa ciudad.</div>
+    <div class="insight" style="margin-top:22px">
+        <div class="insight-label">Análisis</div>
+        <p>El embudo cierra en 87 matriculados sobre 14.273 posibles aspirantes (0.61%), a un costo acumulado de <strong>$3.320.835 por matrícula</strong> sobre los $288.9M de inversión geo-segmentada — muy por encima del costo por lead ($20.242) y por admisión ($701.244), como es esperable en un embudo con alta caída al final. Popayán ($1.283.765/matrícula) y Bogotá ($1.766.227/matrícula) son las más eficientes en costo final entre las ciudades con volumen relevante; Tunja ($15.677.054/matrícula) y Santa Marta ($13.296.707/matrícula) son las más costosas, con una sola matrícula frente a inversiones de $13-16M. Sede Virtual (1.973 aspirantes, $41.1M invertidos) y Manizales (61 aspirantes, $4.6M invertidos) cierran en cero admisiones y matrículas — vale la pena confirmar con la universidad si es un resultado real o si falta cargue de información ahí, ya que representan inversión significativa sin ningún retorno registrado en este corte.</p>
+      </div>
+    </div>
+
   </div><!-- /content -->
 </main>
 
@@ -899,7 +1698,9 @@ const navObs = new IntersectionObserver(entries=>{
         'ma-cumplimiento':'Cumplimiento Leads','ma-cpl':'Análisis CPL',
         'ma-facultades':'CPL por Facultad','ma-casos':'Casos Críticos',
         'sem-resumen':'Resumen & Estacionalidad','sem-embudos':'Comparación de Embudos',
-        'sem-acciones':'Acciones Implementadas'
+        'sem-acciones':'Acciones Implementadas',
+        'cierre-resumen':'Resumen General 2026-2','cierre-inversion':'Inversión por Ciudad y Nivel',
+        'cierre-plataforma':'Plataforma vs. CRM','cierre-embudo':'Embudo de Conversión'
       };
       const el = document.getElementById('current-section-name');
       if(el && names[e.target.id]) el.textContent = names[e.target.id];
@@ -926,7 +1727,8 @@ async function exportPDF(){
     const wrapper = document.createElement('div');
     wrapper.style.cssText = 'position:fixed;top:0;left:-9999px;width:900px;background:#F8F8F8;padding:40px 48px;font-family:Poppins,sans-serif;box-sizing:border-box;';
     const sections = ['ma-resumen','ma-inversion','ma-cumplimiento','ma-cpl','ma-facultades','ma-casos',
-      'sem-resumen','sem-embudos','sem-acciones'];
+      'sem-resumen','sem-embudos','sem-acciones',
+      'cierre-resumen','cierre-inversion','cierre-plataforma','cierre-embudo'];
     const heroes = document.querySelectorAll('.hero');
     [...heroes, ...sections.map(id=>document.getElementById(id))].forEach(el=>{
       if(!el) return;
