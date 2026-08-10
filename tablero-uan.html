@@ -188,6 +188,9 @@ tbody tr:hover td{background:var(--gray-50);}
     <div class="nav-item" onclick="ss('sec-fac')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Por Facultad
     </div>
+    <div class="nav-item" onclick="ss('sec-prog')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>Por Programa
+    </div>
   </div>
   <div class="sidebar-footer">Actualizado: <span id="last-upd-side">—</span></div>
 </nav>
@@ -273,6 +276,22 @@ tbody tr:hover td{background:var(--gray-50);}
 
     <div class="sec-title" id="sec-fac"><span></span>Resultados por Facultad</div>
     <div id="fac-container"></div>
+
+    <div class="sec-title" id="sec-prog"><span></span>Resultados por Sede, Facultad y Programa</div>
+    <div class="tcard">
+      <div class="tscroll">
+        <table>
+          <thead><tr>
+            <th class="sortable" onclick="sortProg('nom')">Sede / Facultad / Programa</th>
+            <th class="r sortable" onclick="sortProg('inv')">Inversión</th>
+            <th class="r">% Total</th>
+            <th class="r sortable" onclick="sortProg('leads')">Leads</th>
+            <th class="r sortable" onclick="sortProg('cpl')">CPL</th>
+          </tr></thead>
+          <tbody id="body-prog"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -283,7 +302,7 @@ const URL_META = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx
 const MESES_ES = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
 let RAW_RG=[], RAW_META=[], FILTERED=[];
-let ciudadSort={col:'inv',dir:-1}, facSort={Pregrado:{col:'inv',dir:-1},Posgrado:{col:'inv',dir:-1}};
+let ciudadSort={col:'inv',dir:-1}, facSort={Pregrado:{col:'inv',dir:-1},Posgrado:{col:'inv',dir:-1}}, progSort={col:'inv',dir:-1};
 
 // ── PARSERS ──────────────────────────────────────────────────────────────────
 function parseInv(v){
@@ -491,6 +510,7 @@ function renderAll(desde,hasta){
   renderMes();
   renderCiudad(desde,hasta);
   renderFacultad(desde,hasta,ciudad_f);
+  renderPrograma();
 }
 
 // ── GRAFICAS DIARIAS ────────────────────────────────────────────────────────
@@ -832,6 +852,90 @@ function sortFac(nv,col){
   const desde=document.getElementById('f-desde').value;
   const hasta=document.getElementById('f-hasta').value;
   renderFacultad(desde,hasta,document.getElementById('f-ciudad').value);
+}
+
+// ── SEDE / FACULTAD / PROGRAMA ────────────────────────────────────────────────
+// "Sede" no existe como campo propio en el registro (Sede==Ciudad en el 100% de
+// las filas de la hoja), así que se reutiliza r.ciudad como Sede.
+function idify(s){return String(s).replace(/[^a-zA-Z0-9]/g,'_');}
+function progLabel(p){
+  if(!p)return'(Sin especificar)';
+  return p;
+}
+function renderPrograma(){
+  const sedeMap={};
+  FILTERED.forEach(r=>{
+    const sede=r.ciudad, fac=r.facultad||'(Sin facultad)', prog=progLabel(r.prog);
+    if(!sedeMap[sede])sedeMap[sede]={inv:0,leads:0,facs:{}};
+    sedeMap[sede].inv+=r.inv;sedeMap[sede].leads+=r.leads;
+    const facs=sedeMap[sede].facs;
+    if(!facs[fac])facs[fac]={inv:0,leads:0,progs:{}};
+    facs[fac].inv+=r.inv;facs[fac].leads+=r.leads;
+    const progs=facs[fac].progs;
+    if(!progs[prog])progs[prog]={inv:0,leads:0};
+    progs[prog].inv+=r.inv;progs[prog].leads+=r.leads;
+  });
+
+  const invT=Object.values(sedeMap).reduce((a,s)=>a+s.inv,0);
+  let sedes=Object.entries(sedeMap).map(([nom,d])=>({nom,inv:d.inv,leads:d.leads,cpl:d.leads>0?d.inv/d.leads:0,facs:d.facs}));
+  const s=progSort;
+  sedes.sort((a,b)=>s.col==='nom'?s.dir*a.nom.localeCompare(b.nom):s.dir*(b[s.col]-a[s.col]));
+
+  let rows='';
+  sedes.forEach(sd=>{
+    const sid=idify(sd.nom);
+    const pctInv=invT>0?(sd.inv/invT*100).toFixed(1):0;
+    rows+=`<tr class="tr-ciudad" onclick="togPS('${sid}')">
+      <td><span class="tog" id="tips-${sid}">▶</span>${sd.nom}</td>
+      <td class="r">${fCOP(sd.inv)}</td>
+      <td class="r">${pctInv}%</td>
+      <td class="r">${fN(sd.leads)}</td>
+      <td class="r" style="color:var(--yellow);font-weight:600">${fCOP(sd.cpl)}</td>
+    </tr>`;
+    const facs=Object.entries(sd.facs).map(([nom,d])=>({nom,inv:d.inv,leads:d.leads,progs:d.progs}))
+      .sort((a,b)=>b.inv-a.inv);
+    facs.forEach(fc=>{
+      const fid=sid+'__'+idify(fc.nom);
+      const pctFac=sd.inv>0?(fc.inv/sd.inv*100).toFixed(1):0;
+      rows+=`<tr class="tr-ciudad-sub" data-sid="${sid}" style="display:none">
+        <td style="padding-left:24px;cursor:pointer" onclick="togPF('${fid}',event)"><span class="tog" id="tipf-${fid}">▶</span>${fc.nom}</td>
+        <td class="r">${fCOP(fc.inv)}</td>
+        <td class="r">${pctFac}%</td>
+        <td class="r">${fN(fc.leads)}</td>
+        <td class="r" style="color:var(--yellow);font-weight:600">${fCOP(fc.leads>0?fc.inv/fc.leads:0)}</td>
+      </tr>`;
+      const progs=Object.entries(fc.progs).map(([nom,d])=>({nom,inv:d.inv,leads:d.leads}))
+        .sort((a,b)=>b.inv-a.inv);
+      progs.forEach(pr=>{
+        const pctProg=fc.inv>0?(pr.inv/fc.inv*100).toFixed(1):0;
+        rows+=`<tr class="tr-prog-item" data-fid="${fid}" style="display:none">
+          <td style="padding-left:44px;font-size:10px;color:var(--gray-400)">${pr.nom}</td>
+          <td class="r" style="font-size:10px">${fCOP(pr.inv)}</td>
+          <td class="r" style="font-size:10px">${pctProg}%</td>
+          <td class="r" style="font-size:10px">${fN(pr.leads)}</td>
+          <td class="r" style="font-size:10px;color:var(--yellow);font-weight:600">${fCOP(pr.leads>0?pr.inv/pr.leads:0)}</td>
+        </tr>`;
+      });
+    });
+  });
+  const tLeads=sedes.reduce((a,sd)=>a+sd.leads,0);
+  rows+=`<tr class="tr-total"><td>TOTAL</td><td class="r">${fCOP(invT)}</td><td class="r">100%</td><td class="r">${fN(tLeads)}</td><td class="r" style="color:var(--yellow);font-weight:600">${fCOP(tLeads>0?invT/tLeads:0)}</td></tr>`;
+  document.getElementById('body-prog').innerHTML=rows;
+}
+function togPS(sid){
+  const ic=document.getElementById('tips-'+sid);ic.classList.toggle('open');
+  const show=ic.classList.contains('open');
+  document.querySelectorAll(`tr.tr-ciudad-sub[data-sid="${sid}"]`).forEach(r=>r.style.display=show?'table-row':'none');
+}
+function togPF(fid,ev){
+  if(ev)ev.stopPropagation();
+  const ic=document.getElementById('tipf-'+fid);ic.classList.toggle('open');
+  const show=ic.classList.contains('open');
+  document.querySelectorAll(`tr.tr-prog-item[data-fid="${fid}"]`).forEach(r=>r.style.display=show?'table-row':'none');
+}
+function sortProg(col){
+  progSort.dir=progSort.col===col?progSort.dir*-1:-1;progSort.col=col;
+  renderPrograma();
 }
 
 // pct-inline styles (inline)
